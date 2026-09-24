@@ -74,6 +74,8 @@ If you change `FLAGS["vigenere_key"]` or `FLAGS["jwt_secret"]`, update the match
 
 ### Recommended timing
 
+For the 5:00–9:00 PM session, follow the round-based plan in [`RUN_OF_SHOW.md`](RUN_OF_SHOW.md).
+
 - **Duration:** 3–4 hours for challenges 01–10 only; 5–6 hours with all 20.
 - **Last 30 minutes:** walk through solutions on the projector. This is where most of the learning happens.
 
