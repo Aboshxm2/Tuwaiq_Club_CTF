@@ -32,9 +32,19 @@ Flags are **case-sensitive**. Submit the whole thing, including `TAIBAH{` and `}
 | 08 | [Camel Caravan](challenges/08-camel-caravan/README.md)           | Linux                | 150    |
 | 09 | [Password Checker](challenges/09-password-checker/README.md)     | Reverse Engineering  | 150    |
 | 10 | [Who Broke In?](challenges/10-who-broke-in/README.md)            | Log Analysis (Blue Team) | 200 |
-|    | **Total**                                                        |                      | **1150** |
+| 11 | [Sandstorm XOR](challenges/11-sandstorm-xor/README.md)           | Cryptography         | 200    |
+| 12 | [Close Primes](challenges/12-close-primes/README.md)             | Cryptography         | 350    |
+| 13 | [The Merchant's Letter](challenges/13-the-merchants-letter/README.md) | Cryptography    | 200    |
+| 14 | [Locked Vault](challenges/14-locked-vault/README.md)             | Password Cracking    | 200    |
+| 15 | [Wiretap](challenges/15-wiretap/README.md)                       | Network Forensics    | 200    |
+| 16 | [Pixel Secrets](challenges/16-pixel-secrets/README.md)           | Steganography        | 300    |
+| 17 | [Floodgate](challenges/17-floodgate/README.md)                   | Reverse Engineering  | 400    |
+| 18 | [Deleted but Not Forgotten](challenges/18-deleted-not-forgotten/README.md) | Forensics (Git) | 250 |
+| 19 | [Onion Layers](challenges/19-onion-layers/README.md)             | Encoding             | 250    |
+| 20 | [Token of Trust](challenges/20-token-of-trust/README.md)         | Web / Cryptography   | 350    |
+|    | **Total**                                                        |                      | **3850** |
 
-Challenges are roughly ordered from easiest to hardest. Start at the top if you're new!
+Challenges 01–10 are **Easy**. Challenges 11–20 are **Medium** and **Hard**, so try them once you're comfortable with the basics. Start at the top if you're new!
 
 ---
 
@@ -65,6 +75,11 @@ You can solve every challenge with free tools. A Linux machine (Kali, Ubuntu, or
 | `ls -la`, `find`, `cat`, `tar` | Linux basics |
 | `grep`, `sort`, `uniq`, `wc` | Log analysis |
 | Python 3 | Scripting and reverse engineering |
+| [Wireshark](https://www.wireshark.org/) | Network captures (`.pcap`) |
+| [Ghidra](https://ghidra-sre.org/) / [Dogbolt](https://dogbolt.org/) | Decompiling binaries |
+| `zsteg`, [Aperi'Solve](https://www.aperisolve.com/) | Image steganography |
+| `git` | Repository forensics |
+| [jwt.io](https://jwt.io/), `hashcat`, `john` | JWTs and password cracking |
 
 ---
 
