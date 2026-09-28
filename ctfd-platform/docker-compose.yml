@@ -1,0 +1,42 @@
+name: taibah-ctf
+
+services:
+  ctfd:
+    build: .
+    user: root
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: sqlite:////var/lib/ctfd/ctfd.db
+      REDIS_URL: redis://cache:6379
+      WORKERS: "1"
+      REVERSE_PROXY: "false"
+      UPLOAD_FOLDER: /var/uploads
+      LOG_FOLDER: /var/log/CTFd
+      ACCESS_LOG: "-"
+      ERROR_LOG: "-"
+      CTF_REPO: /ctf
+      ROUNDS_INSTANCE_DIR: /var/lib/ctfd/instances
+    volumes:
+      - ctfd-data:/var/lib/ctfd
+      - ctfd-uploads:/var/uploads
+      - ctfd-logs:/var/log/CTFd
+      - ..:/ctf:ro
+      - ./plugins/ctfd-rounds:/opt/CTFd/CTFd/plugins/ctfd-rounds:ro
+      - ./plugins/ctfd-whale:/opt/CTFd/CTFd/plugins/ctfd-whale:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - cache
+
+  cache:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+
+volumes:
+  ctfd-data:
+  ctfd-uploads:
+  ctfd-logs:
+  redis-data:

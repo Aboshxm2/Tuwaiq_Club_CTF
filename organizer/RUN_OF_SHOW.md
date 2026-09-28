@@ -72,8 +72,8 @@ Total playing time: **2 h 25 min**.
 
 ### At the end of each round
 1. The host gives a 5-minute warning, then a 1-minute warning.
-2. When the timer hits zero, the platform operator **hides** the round's 4 challenges.
-3. Reveal (5 min), then open the next round.
+2. When the timer hits zero, the platform operator presses **End** on the Rounds page. That hides the round's challenges. Points already earned stay on the scoreboard.
+3. Reveal (5 min), then press **Start** on the next round.
 
 ### Reveal format (5 minutes)
 1. **Celebrate first (1 min):** the round leader, plus the **first blood** (first team to solve) on each challenge.
@@ -83,10 +83,15 @@ Total playing time: **2 h 25 min**.
 
 The final reveal after Round 5 gets 15 minutes: the full Round 5 reveal, then **unfreeze the scoreboard** for the final standings.
 
-### Test this before the event
-- **Hiding challenges:** Hide a solved challenge with a test team and check whether the team's points stay on the scoreboard. If hiding **removes** points, keep past rounds visible instead. In that case, reveals cover only the idea and lesson (no flags), and full solutions come in the final reveal.
-- **Pausing:** Confirm how your platform pauses the competition (CTFd has a pause option in the admin settings in recent versions). Otherwise, just announce that submissions during breaks are not allowed.
-- **Scoreboard freeze:** In CTFd, set the **Freeze** time to 8:20 PM in the admin settings.
+### On the platform
+The site is in `ctfd-platform/`. The **Rounds** item in the admin navbar is the clock.
+
+- **Start** opens that round and hides every other challenge.
+- **Freeze** pauses the clock and rejects submissions. Use it for Maghrib and Isha. **Resume** continues the same round.
+- **End** closes the round. Scores stay. Ending does not wipe points from earlier rounds.
+- Do not use CTFd's global pause or its scoreboard-freeze time for the rounds. Those are separate from this clock.
+
+Players register, create a team of 1 to 5, and press **Launch instance** on each challenge. The download is unique to that team.
 
 ---
 
@@ -94,7 +99,7 @@ The final reveal after Round 5 gets 15 minutes: the full Round 5 reveal, then **
 
 1. **Welcome (2 min):** Five days of learning, and today you use it all.
 2. **How it works (5 min):**
-   - Teams of up to 3. Talk to your teammates, since that's the point.
+   - Teams of 1 to 5. Playing alone means a team with one member.
    - 5 rounds, 4 challenges per round, about 30 minutes each.
    - **When a round ends, its challenges close.** Solve what you can before time runs out.
    - Flag format: `TAIBAH{...}`, case-sensitive.

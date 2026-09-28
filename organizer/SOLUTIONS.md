@@ -1,7 +1,9 @@
 # Organizer Guide & Solutions
 
 > **DO NOT share this file or the `organizer/` folder with students.**
-> Only distribute the top-level `README.md` and the `challenges/` folder.
+> Students use the CTFd site. Each team downloads its own files, and the flag in those files is not the string in the table below.
+
+On the live site the flag is the canonical flag plus `_` and a 4-character team code (Floodgate replaces four characters instead of appending). The walkthroughs below still show how to recover it. A copied flag does not score for another team.
 
 ---
 

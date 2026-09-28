@@ -1,0 +1,177 @@
+diff --git a/__init__.py b/__init__.py
+index 5f94f95..6ffc576 100644
+--- a/__init__.py
++++ b/__init__.py
+@@ -27,6 +27,8 @@ from .utils.routers import Router
+ 
+ def load(app):
+     app.config['RESTX_ERROR_404_HELP'] = False
++    if not app.config.get("REDIS_URL"):
++        app.config["REDIS_URL"] = app.config.get("CACHE_REDIS_URL")
+     # upgrade()
+     plugin_name = __name__.split('.')[-1]
+     set_config('whale:plugin_name', plugin_name)
+diff --git a/api.py b/api.py
+index d8f0b21..2b936b9 100644
+--- a/api.py
++++ b/api.py
+@@ -5,6 +5,8 @@ from flask_restx import Namespace, Resource, abort
+ 
+ from CTFd.utils import get_config
+ from CTFd.utils import user as current_user
++
++from .utils.owner import instance_owner_id
+ from CTFd.utils.decorators import admins_only, authed_only
+ 
+ from .decorators import challenge_visible, frequency_limited
+@@ -69,7 +71,9 @@ class UserContainers(Resource):
+     @authed_only
+     @challenge_visible
+     def get():
+-        user_id = current_user.get_current_user().id
++        user_id = instance_owner_id()
++        if user_id is None:
++            abort(403, 'Create or join a team before launching an instance.', success=False)
+         challenge_id = request.args.get('challenge_id')
+         container = DBContainer.get_current_containers(user_id=user_id)
+         if not container:
+@@ -93,7 +97,9 @@ class UserContainers(Resource):
+     @challenge_visible
+     @frequency_limited
+     def post():
+-        user_id = current_user.get_current_user().id
++        user_id = instance_owner_id()
++        if user_id is None:
++            abort(403, 'Create or join a team before launching an instance.', success=False)
+         ControlUtil.try_remove_container(user_id)
+ 
+         challenge_id = request.args.get('challenge_id')
+@@ -110,7 +116,9 @@ class UserContainers(Resource):
+     @challenge_visible
+     @frequency_limited
+     def patch():
+-        user_id = current_user.get_current_user().id
++        user_id = instance_owner_id()
++        if user_id is None:
++            abort(403, 'Create or join a team before launching an instance.', success=False)
+         challenge_id = request.args.get('challenge_id')
+         docker_max_renew_count = int(get_config("whale:docker_max_renew_count", 5))
+         container = DBContainer.get_current_containers(user_id)
+@@ -127,7 +135,9 @@ class UserContainers(Resource):
+     @authed_only
+     @frequency_limited
+     def delete():
+-        user_id = current_user.get_current_user().id
++        user_id = instance_owner_id()
++        if user_id is None:
++            abort(403, 'Create or join a team before launching an instance.', success=False)
+         result, message = ControlUtil.try_remove_container(user_id)
+         if not result:
+             abort(403, message, success=False)
+diff --git a/challenge_type.py b/challenge_type.py
+index 628e6df..4615d76 100644
+--- a/challenge_type.py
++++ b/challenge_type.py
+@@ -8,6 +8,7 @@ from CTFd.plugins.challenges import BaseChallenge
+ from CTFd.plugins.dynamic_challenges import DynamicValueChallenge
+ from CTFd.plugins.flags import get_flag_class
+ from CTFd.utils import user as current_user
++from .utils.owner import instance_owner_id
+ from .models import WhaleContainer, DynamicDockerChallenge
+ from .utils.control import ControlUtil
+ 
+@@ -79,7 +80,9 @@ class DynamicValueDockerChallenge(BaseChallenge):
+                     return True, "Correct"
+             return False, "Incorrect"
+         else:
+-            user_id = current_user.get_current_user().id
++            user_id = instance_owner_id()
++            if user_id is None:
++                return False, "Create or join a team before submitting."
+             q = db.session.query(WhaleContainer)
+             q = q.filter(WhaleContainer.user_id == user_id)
+             q = q.filter(WhaleContainer.challenge_id == challenge.id)
+diff --git a/decorators.py b/decorators.py
+index aab3fae..c05a677 100644
+--- a/decorators.py
++++ b/decorators.py
+@@ -5,6 +5,7 @@ from flask_restx import abort
+ from sqlalchemy.sql import and_
+ 
+ from CTFd.models import Challenges
++from CTFd.utils import get_config
+ from CTFd.utils.user import is_admin, get_current_user
+ from .utils.cache import CacheProvider
+ 
+@@ -39,11 +40,13 @@ def frequency_limited(func):
+             abort(403, 'Request Too Fast!', success=False)
+             # last request was unsuccessful. this is for protection.
+ 
++        limit = int(get_config("whale:frequency_limit", 60))
+         if "limit" not in session:
+             session["limit"] = int(time.time())
+         else:
+-            if int(time.time()) - session["limit"] < 60:
+-                abort(403, 'Frequency limit, You should wait at least 1 min.', success=False)
++            if int(time.time()) - session["limit"] < limit:
++                redis_util.release_lock()
++                abort(403, f'Frequency limit, You should wait at least {limit} seconds.', success=False)
+         session["limit"] = int(time.time())
+ 
+         result = func(*args, **kwargs)
+diff --git a/requirements.txt b/requirements.txt
+index ccabdeb..681d4cd 100644
+--- a/requirements.txt
++++ b/requirements.txt
+@@ -1,4 +1,3 @@
+-docker==4.1.0
+-Flask-APScheduler==1.11.0
++docker==7.1.0
++Flask-APScheduler==1.12.4
+ flask-redis==0.4.0
+-redis==3.3.11
+\ No newline at end of file
+diff --git a/utils/routers/frp.py b/utils/routers/frp.py
+index 545ba67..0f15155 100644
+--- a/utils/routers/frp.py
++++ b/utils/routers/frp.py
+@@ -85,7 +85,12 @@ class FrpRouter(BaseRouter):
+ 
+     def access(self, container: WhaleContainer):
+         if container.challenge.redirect_type == 'direct':
+-            return f'nc {get_config("whale:frp_direct_ip_address", "127.0.0.1")} {container.port}'
++            host = get_config("whale:frp_direct_ip_address", "127.0.0.1")
++            access = get_config("whale:frp_direct_access_template", "nc {host} {port}")
++            access = access.format(host=host, port=container.port)
++            if access.startswith(("http://", "https://")):
++                return f'<a target="_blank" href="{access}">{access}</a>'
++            return access
+         elif container.challenge.redirect_type == 'http':
+             host = get_config("whale:frp_http_domain_suffix", "")
+             port = get_config("whale:frp_http_port", "80")
+diff --git a/utils/owner.py b/utils/owner.py
+new file mode 100644
+index 0000000..c52bea4
+--- /dev/null
++++ b/utils/owner.py
+@@ -0,0 +1,20 @@
++from CTFd.models import Teams
++from CTFd.utils import get_config
++from CTFd.utils.user import get_current_user
++
++
++def instance_owner_id(user=None):
++    """User id that owns the running instance.
++
++    In teams mode the whole team shares the captain's container and flag.
++    """
++    user = user or get_current_user()
++    if user is None:
++        return None
++    if get_config("user_mode") == "teams":
++        if not user.team_id:
++            return None
++        team = Teams.query.filter_by(id=user.team_id).first()
++        if team is not None and team.captain_id:
++            return team.captain_id
++    return user.id

@@ -1,0 +1,155 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="jumbotron">
+  <div class="container">
+    <h1>Rounds</h1>
+    <p class="lead">
+      One round is open at a time. Starting a round shows only its challenges.
+      Ending it hides them. Points from every round stay on the same scoreboard.
+    </p>
+    {% if active %}
+      <div class="alert alert-info">
+        <strong>{{ active.name }}</strong> is {{ active.state }}.
+        {{ active.remaining()|int }} seconds left on the clock.
+      </div>
+    {% else %}
+      <div class="alert alert-secondary">No round is open. Players cannot see challenges.</div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="container">
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <h3>Early-solve bonus</h3>
+      <p>
+        A solve at the start of a round earns this percent of the challenge value as extra points.
+        The bonus falls to zero when the clock runs out. Base points never go down.
+      </p>
+      <form method="post" action="{{ url_for('ctfd-rounds.admin_bonus') }}" class="form-inline">
+        <input type="hidden" name="nonce" value="{{ Session.nonce }}">
+        <input class="form-control mr-2" type="number" min="0" max="200" name="speed_bonus" value="{{ speed_bonus }}">
+        <button class="btn btn-primary" type="submit">Save percent</button>
+      </form>
+    </div>
+    <div class="col-md-6">
+      <h3>New round</h3>
+      <form method="post" action="{{ url_for('ctfd-rounds.admin_create') }}">
+        <input type="hidden" name="nonce" value="{{ Session.nonce }}">
+        <div class="form-group">
+          <input class="form-control" name="name" placeholder="Round name" required>
+        </div>
+        <div class="form-row">
+          <div class="col">
+            <input class="form-control" type="number" min="1" name="minutes" placeholder="Minutes" required>
+          </div>
+          <div class="col">
+            <input class="form-control" type="number" min="0" name="position" placeholder="Order" value="{{ rounds|length + 1 }}">
+          </div>
+        </div>
+        <button class="btn btn-outline-primary mt-2" type="submit">Add round</button>
+      </form>
+    </div>
+  </div>
+
+  {% for rnd in rounds %}
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center">
+        <h3 class="mb-0">{{ rnd.name }}</h3>
+        <span class="badge badge-dark">{{ rnd.state }}</span>
+      </div>
+      <p class="text-muted mt-2 mb-3">
+        {{ (rnd.duration / 60)|int }} minutes
+        {% if rnd.state in ('running', 'frozen') %}
+          · {{ rnd.remaining()|int }}s remaining
+        {% endif %}
+        · {{ rnd.challenges|length }} challenges
+      </p>
+      <div class="mb-3">
+        <form class="d-inline" method="post" action="{{ url_for('ctfd-rounds.admin_action', round_id=rnd.id, action='start') }}">
+          <input type="hidden" name="nonce" value="{{ Session.nonce }}">
+          <button class="btn btn-success btn-sm" type="submit">Start</button>
+        </form>
+        <form class="d-inline" method="post" action="{{ url_for('ctfd-rounds.admin_action', round_id=rnd.id, action='freeze') }}">
+          <input type="hidden" name="nonce" value="{{ Session.nonce }}">
+          <button class="btn btn-warning btn-sm" type="submit">Freeze</button>
+        </form>
+        <form class="d-inline" method="post" action="{{ url_for('ctfd-rounds.admin_action', round_id=rnd.id, action='resume') }}">
+          <input type="hidden" name="nonce" value="{{ Session.nonce }}">
+          <button class="btn btn-info btn-sm" type="submit">Resume</button>
+        </form>
+        <form class="d-inline" method="post" action="{{ url_for('ctfd-rounds.admin_action', round_id=rnd.id, action='end') }}">
+          <input type="hidden" name="nonce" value="{{ Session.nonce }}">
+          <button class="btn btn-danger btn-sm" type="submit">End</button>
+        </form>
+        {% if rnd.state in ('pending', 'ended') %}
+        <form class="d-inline" method="post" action="{{ url_for('ctfd-rounds.admin_delete', round_id=rnd.id) }}" onsubmit="return confirm('Delete this round? Solves stay on the scoreboard.');">
+          <input type="hidden" name="nonce" value="{{ Session.nonce }}">
+          <button class="btn btn-outline-danger btn-sm" type="submit">Delete</button>
+        </form>
+        {% endif %}
+      </div>
+
+      <form method="post" action="{{ url_for('ctfd-rounds.admin_update', round_id=rnd.id) }}">
+        <input type="hidden" name="nonce" value="{{ Session.nonce }}">
+        <div class="form-row mb-3">
+          <div class="col-md-6">
+            <input class="form-control" name="name" value="{{ rnd.name }}">
+          </div>
+          <div class="col-md-3">
+            <input class="form-control" type="number" min="1" name="minutes" value="{{ (rnd.duration / 60)|int }}">
+          </div>
+          <div class="col-md-3">
+            <input class="form-control" type="number" min="0" name="position" value="{{ rnd.position }}">
+          </div>
+        </div>
+        <div class="row">
+          {% for challenge in challenges %}
+          <div class="col-md-6">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="challenges" value="{{ challenge.id }}" id="c{{ rnd.id }}-{{ challenge.id }}"
+                {% if assigned.get(challenge.id) == rnd.id %}checked{% endif %}>
+              <label class="form-check-label" for="c{{ rnd.id }}-{{ challenge.id }}">
+                {{ challenge.name }}
+                <small class="text-muted">{{ challenge.category }} · {{ challenge.value }}</small>
+                {% if assigned.get(challenge.id) and assigned.get(challenge.id) != rnd.id %}
+                  <small class="text-warning">in another round</small>
+                {% endif %}
+              </label>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <button class="btn btn-primary mt-3" type="submit">Save round</button>
+      </form>
+    </div>
+  </div>
+  {% else %}
+  <p>No rounds yet. Add one above, or run the import script to create the five workshop rounds.</p>
+  {% endfor %}
+
+  <h3>Shared-flag attempts</h3>
+  <p>These players submitted a flag that belongs to a different team.</p>
+  {% if alerts %}
+  <table class="table table-sm">
+    <thead>
+      <tr><th>When</th><th>Player</th><th>Challenge</th><th>Flag</th></tr>
+    </thead>
+    <tbody>
+      {% for alert in alerts %}
+      <tr>
+        <td>{{ alert.date }}</td>
+        <td>{{ alert.user.name if alert.user else alert.user_id }}</td>
+        <td>{{ alert.challenge.name if alert.challenge else alert.challenge_id }}</td>
+        <td><code>{{ alert.provided }}</code></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="text-muted">None yet.</p>
+  {% endif %}
+</div>
+{% endblock %}
