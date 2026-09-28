@@ -35,7 +35,7 @@ HOME_HTML = """
         <li>Do not attack the scoreboard, the platform, or other teams.</li>
         <li>Do not share flags. Sharing a flag does not give the other team points.</li>
         <li>Search engines and tools such as CyberChef, Wireshark, and Ghidra are allowed. Chatbots and AI assistants are not.</li>
-        <li>Hints cost points.</li>
+        <li>There are no hints. Solve every challenge with the challenge files alone.</li>
       </ul>
       <p>Flag format: <code>TAIBAH{...}</code>. It is case-sensitive.</p>
     </div>
@@ -81,16 +81,7 @@ def parse_readme(slug, notes):
     if slug in notes:
         parts.append(notes[slug])
     description = "\n\n".join(part for part in parts if part)
-    hints = []
-    for label, body in re.findall(r"<summary>(.*?)</summary>(.*?)</details>", text, re.S):
-        cost_match = re.search(r"-(\d+)", label)
-        content = strip_payload_lines(strip_fences(body)).strip()
-        content = content.replace(
-            "fa0d1a60ef6616bb28038515c8ea4cb2", "the hash in your instance"
-        )
-        title = re.sub(r"<[^>]+>", "", label).strip()[:80]
-        hints.append({"title": title, "content": content, "cost": int(cost_match.group(1)) if cost_match else 0})
-    return description, hints
+    return description
 
 
 def ensure_setup(db, set_config, get_config, config, Users, Admins, Pages, Teams):
@@ -153,9 +144,10 @@ def main():
         set_config("rounds:speed_bonus", get_config("rounds:speed_bonus") or 50)
         set_config("whale:frequency_limit", 5)
 
+        Hints.query.delete()
         by_slug = {}
         for item in catalog.CHALLENGES:
-            description, hints = parse_readme(item["slug"], catalog.NOTES)
+            description = parse_readme(item["slug"], catalog.NOTES)
             meta = models.ChallengeMeta.query.filter_by(slug=item["slug"]).first()
             if meta:
                 challenge = Challenges.query.get(meta.challenge_id)
@@ -163,7 +155,6 @@ def main():
                 challenge.description = description
                 challenge.value = item["points"]
                 challenge.category = item["category"]
-                Hints.query.filter_by(challenge_id=challenge.id).delete()
             else:
                 challenge = Challenges(
                     name=item["name"],
@@ -177,15 +168,6 @@ def main():
                 db.session.add(challenge)
                 db.session.flush()
                 db.session.add(models.ChallengeMeta(challenge_id=challenge.id, slug=item["slug"]))
-            for hint in hints:
-                db.session.add(
-                    Hints(
-                        challenge_id=challenge.id,
-                        title=hint["title"],
-                        content=hint["content"],
-                        cost=hint["cost"],
-                    )
-                )
             by_slug[item["slug"]] = challenge
         db.session.commit()
 

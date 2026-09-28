@@ -41,6 +41,17 @@ Only one round can be running or frozen at a time. The round ends by itself when
 
 A banner on the site shows the round name and the time left.
 
+## Hints
+
+Hints are off for this event. Players see no hints and cannot unlock any.
+
+- The importer deletes every hint and does not read the `## Hints` sections in the challenge READMEs. Those sections are organizer reference only.
+- The `ctfd-rounds` plugin deletes any hints still in the database each time CTFd starts, including hints that came in from a backup import.
+- The API refuses to create, edit, delete, or show a hint (`/api/v1/hints`), and refuses every unlock (`POST /api/v1/unlocks`). Adding a hint in the admin challenge editor fails with "Hints are disabled for this event."
+- The database refuses to insert a hint, even from a script or `flask shell`.
+
+The selftest below checks this. To turn hints back on, remove the `install_nohints(app)` call from `plugins/ctfd-rounds/__init__.py` and restart CTFd.
+
 ## Whale
 
 [ctfd-whale](https://github.com/frankli0324/ctfd-whale) is installed and patched for this event:
@@ -61,4 +72,4 @@ After import, with round 1 still unstarted:
 docker compose exec ctfd python /ctf/ctfd-platform/scripts/selftest.py
 ```
 
-That starts round 1, solves one challenge as two different teams, checks the early-solve bonus, rejects a copied flag, freezes, and ends the round. Do not run it once the real event has started.
+That checks that no hints exist and a new one is refused, starts round 1, solves one challenge as two different teams, checks the early-solve bonus, rejects a copied flag, freezes, and ends the round. Do not run it once the real event has started.

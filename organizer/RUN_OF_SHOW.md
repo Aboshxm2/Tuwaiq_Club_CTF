@@ -103,7 +103,7 @@ Players register, create a team of 1 to 5, and press **Launch instance** on each
    - 5 rounds, 4 challenges per round, about 30 minutes each.
    - **When a round ends, its challenges close.** Solve what you can before time runs out.
    - Flag format: `TAIBAH{...}`, case-sensitive.
-   - Hints are available but cost points.
+   - There are no hints.
 3. **Rules (3 min):** Don't attack the platform or other teams. Don't share flags between teams. No brute-forcing the submission form.
 4. **Demo (3 min):** Show how to open a challenge, download files, and submit a flag. Use a dummy flag, not a real challenge.
 5. **Questions (2 min)**, then start Round 1.
@@ -151,7 +151,7 @@ With rounds, students should **not** receive the whole `challenges/` folder at t
 
 **The day before**
 - [ ] All 20 challenges created on the platform, grouped by round, all **hidden**
-- [ ] Hints entered with their point costs
+- [ ] Confirmed no hints are shown on any challenge (open one as a test team)
 - [ ] Teams registered (so the briefing isn't spent creating accounts)
 - [ ] Hide, pause, and freeze behaviour tested with a test team
 - [ ] Ran `python3 organizer/verify_solutions.py`, all PASS
