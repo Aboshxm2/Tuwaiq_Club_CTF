@@ -55,7 +55,7 @@ Challenges 01–10 are **Easy**. Challenges 11–20 are **Medium** and **Hard**,
 3. **Do not share flags** or solutions with other teams during the competition.
 4. Brute-forcing the flag submission form is **not allowed**.
 5. Everything you need is inside the challenge files — no real systems need to be hacked.
-6. Hints are available for each challenge. Using a hint may cost points (see each challenge).
+6. There are no hints. Everything you need is in the challenge files.
 7. In case of a tie, the team that reached the score **first** wins.
 8. The organizers' decisions are final.
 

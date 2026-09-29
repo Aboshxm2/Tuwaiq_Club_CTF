@@ -38,7 +38,7 @@ On the live site the flag is the canonical flag plus `_` and a 4-character team 
 
 ### Platform
 
-Use a free CTF platform such as [CTFd](https://ctfd.io/) (self-hosted with Docker in ~5 minutes) or a hosted option like [rCTF](https://rctf.redpwn.net/). Create one challenge per folder, paste the description from each challenge's `README.md`, attach the files from its `files/` folder, and configure the hints with the listed point costs.
+Use a free CTF platform such as [CTFd](https://ctfd.io/) (self-hosted with Docker in ~5 minutes) or a hosted option like [rCTF](https://rctf.redpwn.net/). Create one challenge per folder, paste the description from each challenge's `README.md`, and attach the files from its `files/` folder. Do not add hints: this event runs without them. The `## Hints` sections in the challenge READMEs are organizer reference only.
 
 ```bash
 git clone https://github.com/CTFd/CTFd.git && cd CTFd
@@ -72,7 +72,7 @@ After regenerating, confirm that challenges 11–20 are still solvable from the 
 python3 organizer/verify_solutions.py
 ```
 
-If you change `FLAGS["vigenere_key"]` or `FLAGS["jwt_secret"]`, update the matching hints in challenges 13 and 20.
+If you change `FLAGS["vigenere_key"]` or `FLAGS["jwt_secret"]`, update the matching `## Hints` sections in challenges 13 and 20. They are organizer reference only and are not shown to players.
 
 ### Recommended timing
 

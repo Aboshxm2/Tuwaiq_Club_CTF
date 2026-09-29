@@ -29,7 +29,6 @@ from .logic import (
 )
 from .models import ChallengeMeta, RoundChallenges, RoundFlagAlerts, Rounds
 
-
 def load(app):
     app.db.create_all()
 

@@ -41,6 +41,12 @@ Only one round can be running or frozen at a time. The round ends by itself when
 
 A banner on the site shows the round name and the time left.
 
+## Hints
+
+The importer does not create hints and does not read the `## Hints` sections in the challenge READMEs. Those sections are organizer reference only.
+
+CTFd's normal hint feature is on. A hint you add in the admin challenge editor is shown to players, and re-running the importer leaves it in place.
+
 ## Whale
 
 [ctfd-whale](https://github.com/frankli0324/ctfd-whale) is installed and patched for this event:
