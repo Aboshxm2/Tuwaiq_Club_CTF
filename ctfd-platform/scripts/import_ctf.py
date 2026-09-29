@@ -16,27 +16,45 @@ sys.path.insert(0, "/opt/CTFd")
 REPO = Path(os.environ.get("CTF_REPO", "/ctf"))
 README_ROOT = REPO / "challenges"
 
+THEME = "tuwaiq"
+
+# The tw-* classes come from the Tuwaiq theme (themes/tuwaiq/static/css/tuwaiq.css).
 HOME_HTML = """
-<div class="container py-5">
-  <div class="row">
-    <div class="col-lg-8 offset-lg-2">
-      <h1 class="text-center">Taibah University CTF</h1>
-      <p class="lead text-center">Final day of the cybersecurity workshop. Five rounds, one scoreboard.</p>
-      <h3>How to play</h3>
-      <ol>
-        <li>Register, then create a team. Play alone by being the only member, or invite up to 4 teammates (5 people total).</li>
-        <li>Challenges open one round at a time. When a round ends, its challenges close. Points you already earned stay on the scoreboard.</li>
-        <li>Open a challenge and click <strong>Launch instance</strong>. Download the files. They were generated for your team.</li>
-        <li>Submit the flag you recover. A flag copied from another team will not score.</li>
-        <li>Solving earlier in the round earns extra points. The bonus falls to zero as the clock runs out.</li>
-      </ol>
+<div class="tw-hero">
+  <img class="tw-hero-logo" src="/themes/tuwaiq/static/img/tuwaiq-club.png" alt="Tuwaiq Club">
+  <h1>Taibah University CTF</h1>
+  <p class="lead">Final day of the cybersecurity workshop. Five rounds, one scoreboard.</p>
+  <div class="tw-hero-actions">
+    <a class="btn btn-light btn-lg" href="/challenges">Challenges</a>
+    <a class="btn btn-outline-light btn-lg" href="/scoreboard">Scoreboard</a>
+  </div>
+</div>
+
+<h2 class="tw-section-title">How to play</h2>
+<ol class="tw-steps">
+  <li><span class="tw-num">01</span>Register, then create a team. Play alone by being the only member, or invite up to 4 teammates (5 people total).</li>
+  <li><span class="tw-num">02</span>Challenges open one round at a time. When a round ends, its challenges close. Points you already earned stay on the scoreboard.</li>
+  <li><span class="tw-num">03</span>Open a challenge and click <strong>Launch instance</strong>. Download the files. They were generated for your team.</li>
+  <li><span class="tw-num">04</span>Submit the flag you recover. A flag copied from another team will not score.</li>
+  <li><span class="tw-num">05</span>Solving earlier in the round earns extra points. The bonus falls to zero as the clock runs out.</li>
+</ol>
+
+<div class="row g-4 mt-2 mb-4">
+  <div class="col-lg-7">
+    <div class="tw-panel">
       <h3>Rules</h3>
-      <ul>
+      <ul class="tw-list">
         <li>Do not attack the scoreboard, the platform, or other teams.</li>
         <li>Do not share flags. Sharing a flag does not give the other team points.</li>
         <li>Search engines and tools such as CyberChef, Wireshark, and Ghidra are allowed. Chatbots and AI assistants are not.</li>
       </ul>
-      <p>Flag format: <code>TAIBAH{...}</code>. It is case-sensitive.</p>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="tw-panel">
+      <h3>Flag format</h3>
+      <p><span class="tw-flag">TAIBAH{...}</span></p>
+      <p class="mb-0">Flags are case-sensitive. Submit the whole thing, including <code>TAIBAH{</code> and <code>}</code>.</p>
     </div>
   </div>
 </div>
@@ -141,6 +159,7 @@ def main():
         page = Pages.query.filter_by(route="index").first()
         if page is not None:
             page.content = HOME_HTML
+        set_config("ctf_theme", THEME)
         set_config("user_mode", "teams")
         set_config("team_size", "5")
         set_config("rounds:speed_bonus", get_config("rounds:speed_bonus") or 50)

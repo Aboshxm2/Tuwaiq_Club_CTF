@@ -9,5 +9,6 @@ RUN pip install --no-cache-dir -r /tmp/whale-requirements.txt
 COPY plugins/ctfd-rounds /opt/CTFd/CTFd/plugins/ctfd-rounds
 COPY plugins/ctfd-whale /opt/CTFd/CTFd/plugins/ctfd-whale
 COPY plugins/ctfd-registration /opt/CTFd/CTFd/plugins/ctfd-registration
+COPY themes/tuwaiq /opt/CTFd/CTFd/themes/tuwaiq
 
 ENV ROUNDS_INSTANCE_DIR=/var/lib/ctfd/instances

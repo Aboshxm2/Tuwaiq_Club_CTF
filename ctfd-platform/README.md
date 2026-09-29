@@ -42,6 +42,14 @@ Only one round can be running or frozen at a time. The round ends by itself when
 
 A banner on the site shows the round name and the time left.
 
+## Theme
+
+The site uses the Tuwaiq Club theme in [`themes/tuwaiq/`](themes/tuwaiq/). The importer selects it (`ctf_theme = tuwaiq`) and writes the home page, which uses the theme's `tw-*` classes.
+
+The theme is a skin over CTFd's core theme. It overrides only `base.html` and `components/navbar.html`, and adds `static/css/tuwaiq.css`. Every other template, and the compiled JS and CSS, come from core through `THEME_FALLBACK`, which is on by default. Do not turn it off.
+
+Players can switch between light and dark with the navbar toggle. Uploading a logo under Admin → Config → Theme replaces the Tuwaiq Club logo in the navbar.
+
 ## Registration fields
 
 The importer adds two required fields to the registration form:
