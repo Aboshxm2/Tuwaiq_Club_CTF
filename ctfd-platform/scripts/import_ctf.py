@@ -140,7 +140,7 @@ def ensure_setup(db, set_config, get_config, config, Users, Admins, Pages, Teams
 
 def main():
     from CTFd import create_app
-    from CTFd.cache import clear_challenges, clear_config
+    from CTFd.cache import clear_challenges, clear_config, clear_standings
     from CTFd.models import Admins, Challenges, Pages, Users, db
     from CTFd.utils import get_config, set_config
     from CTFd.utils import config
@@ -167,6 +167,9 @@ def main():
         # Deployable challenges get a per-team flag from whale in the event format.
         set_config("whale:template_chall_flag", "TAIBAH{{ '{' }}{{ uuid.uuid4().hex }}{{ '}' }}")
         registration.ensure_fields()
+        # One scoreboard bracket per level; teams are placed by their members.
+        registration.ensure_brackets()
+        registration.sync_team_brackets()
 
         def upsert_file_challenge(item, description):
             meta = models.ChallengeMeta.query.filter_by(slug=item["slug"]).first()
@@ -274,6 +277,7 @@ def main():
         db.session.commit()
         clear_challenges()
         clear_config()
+        clear_standings()
         print(f"Imported {len(by_slug)} challenges into {len(catalog.ROUNDS)} rounds.")
         print("All challenges are hidden until you press Start on the Rounds admin page.")
 

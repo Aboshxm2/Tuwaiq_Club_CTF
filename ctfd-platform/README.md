@@ -57,7 +57,15 @@ The importer adds two required fields to the registration form:
 - **University Major**: free text.
 - **Level**: a dropdown with Beginner, Intermediate and Advanced. The `ctfd-registration` plugin draws the dropdown and rejects any other value.
 
-Players cannot change these after registering. Admins see and edit them on each user's page (Admin → Users). Rename or delete them under Admin → Config → Custom Fields, but keep the name `Level` or the dropdown stops working.
+Players cannot change these after registering. Admins see and edit them on each user's page (Admin → Users). Rename or delete them under Admin → Config → Custom Fields, but keep the name `Level` or the dropdown and the level leaderboards stop working.
+
+## Level leaderboards
+
+The scoreboard has a tab per level: All, Beginner, Intermediate and Advanced. The table and the graph both follow the selected tab. They are CTFd team brackets, which the importer creates.
+
+A team is on the leaderboard of its most experienced member. One Advanced member makes the whole team Advanced. A team whose members have no level counts as Beginner. Players do not choose a bracket: the plugin hides CTFd's bracket picker on the new-team form and sets the bracket itself.
+
+The bracket is recalculated after every change that can affect it: creating or joining a team, an admin removing a member, and an admin editing someone's Level. Players cannot leave a team by themselves in CTFd 3.8, so moving someone means an admin removes them under Admin → Teams. An admin's manual bracket choice on a team is overwritten at the next recalculation. Keep the bracket names `Beginner`, `Intermediate` and `Advanced`.
 
 ## Hints
 

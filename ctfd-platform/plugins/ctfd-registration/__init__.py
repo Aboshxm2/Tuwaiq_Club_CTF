@@ -1,13 +1,29 @@
 from pathlib import Path
 
 from flask import Blueprint, flash, request, send_from_directory
+from werkzeug.datastructures import ImmutableMultiDict
 
+from CTFd.cache import clear_standings
 from CTFd.models import UserFields, db
 from CTFd.plugins import register_plugin_script
+from CTFd.utils.user import get_current_user
+
+from .brackets import (
+    LEVEL_FIELD,
+    LEVELS,
+    bracket_ids,
+    ensure_brackets,
+    sync_team_brackets,
+    team_level,
+    user_level,
+)
 
 MAJOR_FIELD = "University Major"
-LEVEL_FIELD = "Level"
-LEVELS = ("Beginner", "Intermediate", "Advanced")
+
+# Requests that can change who is on a team or what level a player has.
+TEAM_CHANGE_PREFIXES = ("/team", "/api/v1/teams", "/api/v1/users", "/admin", "/register")
+
+__all__ = ["ensure_fields", "ensure_brackets", "sync_team_brackets", "load"]
 
 
 def ensure_fields():
@@ -55,3 +71,30 @@ def load(app):
             # CTFd's register view reads errors from this flash category and
             # re-renders the form instead of creating the account.
             flash("Choose a level: " + ", ".join(LEVELS) + ".", "auth.register.errors")
+
+    @app.before_request
+    def registration_team_bracket():
+        # CTFd asks the creator to pick a team bracket. The bracket comes from
+        # the creator's level instead, whatever the form sent.
+        if request.method != "POST" or request.endpoint != "teams.new":
+            return
+        ids = bracket_ids()
+        user = get_current_user()
+        if len(ids) != len(LEVELS) or user is None:
+            return
+        form = request.form.to_dict(flat=False)
+        form["bracket_id"] = [str(ids[team_level([user_level(user.id)])])]
+        request.form = ImmutableMultiDict(form)
+
+    @app.after_request
+    def registration_sync_brackets(response):
+        # Joining, leaving, kicking, and admin edits all go through these
+        # paths. Re-check every team so its bracket follows its members.
+        if request.method == "GET" or not request.path.startswith(TEAM_CHANGE_PREFIXES):
+            return response
+        try:
+            if sync_team_brackets():
+                clear_standings()
+        except Exception:
+            db.session.rollback()
+        return response
