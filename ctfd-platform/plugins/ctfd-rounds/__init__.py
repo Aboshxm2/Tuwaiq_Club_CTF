@@ -28,12 +28,9 @@ from .logic import (
     tick,
 )
 from .models import ChallengeMeta, RoundChallenges, RoundFlagAlerts, Rounds
-from .nohints import install as install_nohints
-
 
 def load(app):
     app.db.create_all()
-    install_nohints(app)
 
     plugin_root = "/plugins/ctfd-rounds"
     blueprint = Blueprint(

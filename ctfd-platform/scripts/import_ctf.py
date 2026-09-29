@@ -35,7 +35,6 @@ HOME_HTML = """
         <li>Do not attack the scoreboard, the platform, or other teams.</li>
         <li>Do not share flags. Sharing a flag does not give the other team points.</li>
         <li>Search engines and tools such as CyberChef, Wireshark, and Ghidra are allowed. Chatbots and AI assistants are not.</li>
-        <li>There are no hints. Solve every challenge with the challenge files alone.</li>
       </ul>
       <p>Flag format: <code>TAIBAH{...}</code>. It is case-sensitive.</p>
     </div>
