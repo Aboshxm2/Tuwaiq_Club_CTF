@@ -3,7 +3,7 @@
 > **DO NOT share this file or the `organizer/` folder with students.**
 > Students use the CTFd site. Each team downloads its own files, and the flag in those files is not the string in the table below.
 
-On the live site the flag is the canonical flag plus `_` and a 4-character team code (Floodgate replaces four characters instead of appending). The walkthroughs below still show how to recover it. A copied flag does not score for another team.
+On the live site, for the file-based challenges the flag is the canonical flag plus `_` and a 4-character team code (Floodgate replaces four characters instead of appending). **Challenges 01 and 20 are deployed as a live container per team (ctfd-whale); their flag is a fully random `TAIBAH{…}` string issued by the platform — it does not match the fixed string in the table below and cannot be predicted, so recover it from the running instance.** The walkthroughs below still show how to recover each flag. A copied flag does not score for another team.
 
 ---
 
@@ -11,7 +11,7 @@ On the live site the flag is the canonical flag plus `_` and a 4-character team 
 
 | #  | Challenge            | Points | Flag |
 |----|----------------------|--------|------|
-| 01 | Inspect the Oasis    | 50     | `TAIBAH{1nsp3ct_th3_s0urc3}` |
+| 01 | Inspect the Oasis    | 50     | `TAIBAH{1nsp3ct_th3_s0urc3}` † |
 | 02 | Strange Letters      | 50     | `TAIBAH{b4s364_1s_n0t_3ncrypt10n}` |
 | 03 | Julius in the Desert | 100    | `TAIBAH{ju11us_w0uld_b3_pr0ud}` |
 | 04 | Ones and Zeros       | 100    | `TAIBAH{b1n4ry_1s_th3_l4ngu4g3}` |
@@ -30,7 +30,9 @@ On the live site the flag is the canonical flag plus `_` and a 4-character team 
 | 17 | Floodgate            | 400    | `TAIBAH{gh1dr4_s33s_thr0ugh_y0u}` |
 | 18 | Deleted but Not Forgotten | 250 | `TAIBAH{g1t_n3v3r_f0rg3ts_4_c0mm1t}` |
 | 19 | Onion Layers         | 250    | `TAIBAH{p33l1ng_th3_3nc0d1ng_0n10n}` |
-| 20 | Token of Trust       | 350    | `TAIBAH{w34k_jwt_s3cr3ts_unl0ck_v4ults}` |
+| 20 | Token of Trust       | 350    | `TAIBAH{w34k_jwt_s3cr3ts_unl0ck_v4ults}` † |
+
+† **File-version flag only.** At the event, 01 and 20 run as a live container per team and the flag is a random `TAIBAH{…}` string issued by the platform, not this fixed string. See their walkthroughs below and [`../ctfd-platform/deploy/`](../ctfd-platform/deploy/README.md).
 
 ---
 
@@ -45,9 +47,11 @@ git clone https://github.com/CTFd/CTFd.git && cd CTFd
 docker compose up -d   # then open http://localhost:8000
 ```
 
-### Hosting challenge 01 (optional)
+### Hosting challenges 01 and 20 (live per-team instances)
 
-Students can open `index.html` locally, but hosting it feels more realistic:
+At the event these two run as a container per team via ctfd-whale, so each team gets its own site/portal and its own random flag. The images and a guide for adding more deployable challenges are in [`../ctfd-platform/deploy/`](../ctfd-platform/deploy/README.md).
+
+To preview the file version of 01 locally without the platform:
 
 ```bash
 cd challenges/01-inspect-the-oasis/files
@@ -87,7 +91,7 @@ For the 5:00–9:00 PM session, follow the round-based plan in [`RUN_OF_SHOW.md`
 
 ### 01 — Inspect the Oasis (Web)
 
-The flag is split across the three website files as developer comments.
+The flag is split across the three website files as developer comments. On the live per-team instance the three parts are a random `TAIBAH{…}` split into thirds; the method is identical (view source of the three files) and they reassemble to your team's flag.
 
 1. Right-click → **View Page Source** on `index.html`: `<!-- ... Part 1/3 of the flag: TAIBAH{1nsp3ct_ -->`
 2. Open `style.css`: `/* Part 2/3 of the flag: th3_ */`
@@ -364,16 +368,28 @@ CyberChef recipe: **From Base64 → From Hex → From Base32 → Zlib Inflate �
 
 ### 20 — Token of Trust (Web / Cryptography)
 
-1. Decode the token at jwt.io. The header is `{"alg":"HS256","typ":"JWT"}` and the payload is a guest session.
-2. Crack the HMAC secret with the leaked wordlist. The secret is **`mirage2025`**:
+**Live version (deployed per team — what players use at the event).** Each team launches its own portal; the flag is the random `TAIBAH{…}` string returned by `/vault`, unique to that team. The signing secret is a random word from the leaked list (different per team), so a secret recovered from one instance does not help against another.
+
+1. Open the instance URL. The home page shows your **guest** JWT and links to the vault and to a leaked password backup at `/backup/wordlist.txt`. Decode the token at jwt.io: the header is `{"alg":"HS256","typ":"JWT"}` and the payload is a guest session (`"role":"guest"`).
+2. Crack the HMAC secret against the leaked wordlist. Save your guest token to `token.txt`, then:
    ```bash
-   hashcat -m 16500 token.txt wordlist.txt
+   curl -s http://<instance>/backup/wordlist.txt -o wordlist.txt
+   hashcat -m 16500 token.txt wordlist.txt      # or a short HMAC-SHA256 loop in Python
    ```
+3. Forge a token with the recovered secret and `"role": "admin"` (keep `alg` HS256), then present it to the vault:
+   ```bash
+   curl -s "http://<instance>/vault" -H "Authorization: Bearer <forged-token>"
+   # -> Vault unlocked.\n TAIBAH{...}
+   ```
+   The vault also accepts the token as a `token` cookie or a `?token=` query parameter. A guest token is rejected with `403`; only `"role":"admin"` unlocks it.
+
+**File version (in `challenges/20-token-of-trust/`, shared after the event).** The handout ships `token.txt`, `wordlist.txt`, `vault.enc`, and `vault_tool.py`, and the secret is fixed at **`mirage2025`**:
+
+1. Decode `token.txt` at jwt.io; the payload is a guest session.
+2. Crack the secret: `hashcat -m 16500 token.txt wordlist.txt`.
 3. `vault_tool.py` XORs data with `SHA-256(secret)`, so running it again decrypts:
    ```bash
    JWT_SECRET=mirage2025 python3 vault_tool.py vault.enc vault.txt && cat vault.txt
    ```
 
-**Bonus discussion:** with the secret, students could also forge a token with `"role": "admin"`. Ask them why that is much worse than reading the vault.
-
-**Lesson:** An HS256 JWT is only as strong as its secret, and anyone holding one token can brute-force the secret offline. Use long random secrets (or asymmetric RS256/EdDSA keys), and never reuse one secret for several purposes.
+**Lesson:** An HS256 JWT is only as strong as its secret, and anyone holding one token can brute-force the secret offline, then mint an admin token themselves. Use long random secrets (or asymmetric RS256/EdDSA keys), and never reuse one secret for several purposes.

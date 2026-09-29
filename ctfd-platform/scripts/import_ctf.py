@@ -133,6 +133,8 @@ def main():
 
         catalog = importlib.import_module("CTFd.plugins.ctfd-rounds.catalog")
         models = importlib.import_module("CTFd.plugins.ctfd-rounds.models")
+        whale_models = importlib.import_module("CTFd.plugins.ctfd-whale.models")
+        DynamicDockerChallenge = whale_models.DynamicDockerChallenge
 
         ensure_setup(db, set_config, get_config, config, Users, Admins, Pages, None)
         page = Pages.query.filter_by(route="index").first()
@@ -142,10 +144,10 @@ def main():
         set_config("team_size", "5")
         set_config("rounds:speed_bonus", get_config("rounds:speed_bonus") or 50)
         set_config("whale:frequency_limit", 5)
+        # Deployable challenges get a per-team flag from whale in the event format.
+        set_config("whale:template_chall_flag", "TAIBAH{{ '{' }}{{ uuid.uuid4().hex }}{{ '}' }}")
 
-        by_slug = {}
-        for item in catalog.CHALLENGES:
-            description = parse_readme(item["slug"], catalog.NOTES)
+        def upsert_file_challenge(item, description):
             meta = models.ChallengeMeta.query.filter_by(slug=item["slug"]).first()
             if meta:
                 challenge = Challenges.query.get(meta.challenge_id)
@@ -166,6 +168,57 @@ def main():
                 db.session.add(challenge)
                 db.session.flush()
                 db.session.add(models.ChallengeMeta(challenge_id=challenge.id, slug=item["slug"]))
+            return challenge
+
+        def upsert_deployable_challenge(item, deploy):
+            # A challenge served as a live container (dynamic_docker) instead of a
+            # downloadable bundle. No ChallengeMeta and no static Flags: whale
+            # generates the per-team flag and checks it.
+            challenge = Challenges.query.filter_by(name=item["name"]).first()
+            if challenge is not None and challenge.type != "dynamic_docker":
+                # This slug used to be a file challenge. Drop it and recreate it as
+                # a container challenge. Do this before the event; it removes the
+                # old challenge's solves.
+                old_meta = models.ChallengeMeta.query.filter_by(slug=item["slug"]).first()
+                if old_meta:
+                    db.session.delete(old_meta)
+                print(f"Converting {item['name']} from a file challenge to a container challenge.")
+                db.session.delete(challenge)
+                db.session.flush()
+                challenge = None
+            if challenge is None:
+                challenge = DynamicDockerChallenge(
+                    name=item["name"],
+                    description=deploy["description"],
+                    value=item["points"],
+                    category=item["category"],
+                    state="hidden",
+                )
+                challenge.position = int(item["slug"][:2])
+                db.session.add(challenge)
+                db.session.flush()
+            else:
+                challenge.description = deploy["description"]
+                challenge.value = item["points"]
+                challenge.category = item["category"]
+            challenge.initial = item["points"]
+            challenge.minimum = item["points"]
+            challenge.decay = 0
+            challenge.dynamic_score = 0
+            challenge.docker_image = deploy["image"]
+            challenge.redirect_type = deploy["redirect_type"]
+            challenge.redirect_port = deploy["redirect_port"]
+            challenge.memory_limit = deploy["memory_limit"]
+            challenge.cpu_limit = deploy["cpu_limit"]
+            return challenge
+
+        by_slug = {}
+        for item in catalog.CHALLENGES:
+            deploy = catalog.DEPLOYABLE.get(item["slug"])
+            if deploy:
+                challenge = upsert_deployable_challenge(item, deploy)
+            else:
+                challenge = upsert_file_challenge(item, parse_readme(item["slug"], catalog.NOTES))
             by_slug[item["slug"]] = challenge
         db.session.commit()
 
