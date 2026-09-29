@@ -43,7 +43,7 @@ The added pieces live in [`docker-compose.production.yml`](docker-compose.produc
 | **Two servers:** a CTFd server (swarm manager) and a challenge server (swarm worker) | Recommended. Team containers never run next to CTFd. |
 | **One server:** everything on one machine | Fine for a small event, or if you only have one machine. Skip the worker steps below. |
 
-Sizing: each team has at most one instance running at a time. Challenge 01 is capped at 64 MB and challenge 20 at 128 MB, each at 0.5 CPU. These are ceilings, not reservations; idle, they use much less. Plan the challenge server for **teams × 128 MB** plus about 1 GB for the OS. With 60 teams, that is about 8.5 GB. A server with 2–4 vCPUs is enough. The CTFd server is fine with 2 vCPUs and 4 GB.
+Sizing: each team has at most one instance running at a time, even in the two rounds that hold two deployable challenges (whale replaces a team's container when they launch another). The images cap at 64–128 MB and 0.5 CPU each. These are ceilings, not reservations; idle, they use much less. Plan the challenge server for **teams × 128 MB** plus about 1 GB for the OS. With 60 teams, that is about 8.5 GB. A server with 2–4 vCPUs is enough. The CTFd server is fine with 2 vCPUs and 4 GB.
 
 Both servers: Ubuntu 22.04 or 24.04 (any Linux with Docker works), and **Docker Engine 25 or newer** with the Compose plugin **2.24 or newer**. Install Docker with:
 
@@ -76,7 +76,7 @@ You need two records, and **both point at the CTFd server**. frps runs there, no
 | Port | On | Open to | Why |
 |------|----|---------|-----|
 | 80/tcp, 443/tcp | CTFd server | players | Caddy: the site and every team instance |
-| 10000–10099/tcp | CTFd server | players | Only if you add a `direct` (raw TCP) challenge. Currently unused. |
+| 10000–10099/tcp | CTFd server | players | `direct` (raw TCP) challenges. Used by challenge 25 (Floodgate Override); whale hands each instance a port in this range. |
 | 2377/tcp | CTFd server | challenge server only | swarm management |
 | 7946/tcp+udp | both | the other server only | swarm node gossip |
 | 4789/udp | both | the other server only | overlay network traffic (VXLAN) |
@@ -192,8 +192,8 @@ Open `https://ctf.example.edu/plugins/ctfd-whale/admin/settings` and set:
 | Router | API URL | `http://frpc:7400` (default; keep) |
 | Router | Http Domain Suffix | your `CHALLENGE_DOMAIN`, e.g. `chal.example.edu` |
 | Router | External Http Port | `80` |
-| Router | Direct IP Address | the CTFd server's public IP or hostname (only used by `direct` challenges) |
-| Router | Direct Minimum / Maximum Port | `10000` / `10099` |
+| Router | Direct IP Address | the CTFd server's public IP or hostname. **Required for challenge 25** (Floodgate Override, `direct`/TCP): whale prints it to players as `nc <this> <port>`, so set it to the address players can reach, not an internal IP. |
+| Router | Direct Minimum / Maximum Port | `10000` / `10099` (must match the published range and `allow_ports`; challenge 25 uses it) |
 | Router | Frpc config template | leave empty. whale fills it from frpc on the first launch. |
 | Limits | Max Container Count | at least the number of teams, plus a few for testing |
 | Limits | Docker Container Timeout | `3600` (seconds; longer than any round) |
@@ -217,6 +217,11 @@ Expected output:
 ```
 PASS 01-inspect-the-oasis: solved via http://<uuid>.chal.example.edu/ after 7.1s
 PASS 20-token-of-trust: solved via http://<uuid>.chal.example.edu/ after 6.7s
+PASS 21-caravan-ledger: solved via http://<uuid>.chal.example.edu/ after 6.9s
+PASS 22-sealed-scroll: solved via http://<uuid>.chal.example.edu/ after 6.8s
+PASS 23-desert-diagnostics: solved via http://<uuid>.chal.example.edu/ after 7.0s
+PASS 24-mirage-preview: solved via http://<uuid>.chal.example.edu/ after 6.9s
+PASS 25-floodgate-override: solved via frps:10000 after 6.5s
 PASS all deployable challenges launch, route, solve, and stop
 ```
 
@@ -236,7 +241,7 @@ curl -s  http://anything.chal.example.edu/ -o /dev/null -w '%{http_code}\n'   # 
 ## During the event
 
 - **Running instances:** `docker service ls` shows one service per running instance. The admin page `/plugins/ctfd-whale/admin/containers` lists them by team, with buttons to renew or destroy.
-- **One instance per team.** Launching a challenge replaces that team's previous instance. Rounds 1 and 4 each have exactly one deployable challenge, so this never gets in the way.
+- **One instance per team.** Launching a challenge replaces that team's previous instance. Rounds 1 and 4 each have **two** deployable challenges, so a team there can only run one at a time; relaunching the other is instant and gives a fresh flag. Brief players to finish and submit one live challenge before launching the next in the same round. Rounds 2, 3 and 5 have one deployable each.
 - **Lifetime:** an instance stops after *Docker Container Timeout*. Teams can press *Renew* up to *Max Renewal Times*. After it stops, the team launches again and gets a **new** flag, and the old one no longer scores.
 - **A link that 404s for the first few seconds is normal.** The container is still starting (about 4–7 seconds in testing).
 - **Logs:** `docker compose logs -f ctfd frpc`.

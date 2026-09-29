@@ -16,14 +16,16 @@
 
 | Round | Theme                   | Challenges                                                                                                          | Points   |
 | ----- | ----------------------- | ------------------------------------------------------------------------------------------------------------------- | -------- |
-| 1     | Warm-up: Encoding & Web | 01 Inspect the Oasis (50) · 02 Strange Letters (50) · 04 Ones and Zeros (100) · **19 Onion Layers (250)**           | 450      |
-| 2     | Ciphers                 | 03 Julius in the Desert (100) · 13 The Merchant's Letter (200) · 11 Sandstorm XOR (200) · **12 Close Primes (350)** | 850      |
-| 3     | Hidden in Files         | 06 Desert Picture (100) · 07 Not a PDF (150) · 18 Deleted but Not Forgotten (250) · **16 Pixel Secrets (300)**      | 800      |
-| 4     | Breaking Locks          | 05 Crack the Falcon (100) · 09 Password Checker (150) · 14 Locked Vault (200) · **20 Token of Trust (350)**         | 800      |
-| 5     | The Investigation       | 08 Camel Caravan (150) · 10 Who Broke In? (200) · 15 Wiretap (200) · **17 Floodgate (400)**                         | 950      |
-|       | **Total**               | 20 challenges                                                                                                       | **3850** |
+| 1     | Warm-up: Encoding & Web | 01 Inspect the Oasis (50) ⧉ · 02 Strange Letters (50) · 04 Ones and Zeros (100) · 21 Caravan Ledger (250) ⧉ · **19 Onion Layers (250)** | 700      |
+| 2     | Ciphers                 | 03 Julius in the Desert (100) · 13 The Merchant's Letter (200) · 11 Sandstorm XOR (200) · 22 Sealed Scroll (400) ⧉ · **12 Close Primes (350)** | 1250     |
+| 3     | Hidden in Files         | 06 Desert Picture (100) · 07 Not a PDF (150) · 18 Deleted but Not Forgotten (250) · 23 Desert Diagnostics (300) ⧉ · **16 Pixel Secrets (300)** | 1100     |
+| 4     | Breaking Locks          | 05 Crack the Falcon (100) · 09 Password Checker (150) · 14 Locked Vault (200) · 24 Mirage Preview (350) ⧉ · **20 Token of Trust (350)** ⧉ | 1150     |
+| 5     | The Investigation       | 08 Camel Caravan (150) · 10 Who Broke In? (200) · 15 Wiretap (200) · 25 Floodgate Override (400) ⧉ · **17 Floodgate (400)** | 1350     |
+|       | **Total**               | 25 challenges | **5550** |
 
-**Bold** = the round's stretch challenge.
+**Bold** = the round's stretch challenge. **⧉** = a live per-team instance: press **Launch an instance**, then open the link (challenge 25 is raw TCP — connect with `nc`).
+
+> **Rounds 1 and 4 each have two live challenges.** A team can run only **one** live instance at a time — launching a second replaces the first, which comes back with a new flag. Tell teams to finish and submit one live challenge before launching the next in the same round; these exploits take seconds to re-run.
 
 ---
 
@@ -116,7 +118,7 @@ Players register, create a team of 1 to 5, and press **Launch instance** on each
 
 ## Story: Operation Sandstorm
 
-Read one short chapter intro at the start of each round to turn the 20 challenges into one mission.
+Read one short chapter intro at the start of each round to turn the 25 challenges into one mission.
 
 **Prologue (at the briefing)**
 
@@ -162,12 +164,13 @@ With rounds, students should **not** receive the whole `challenges/` folder at t
 
 **The day before**
 
-- [ ] All 20 challenges created on the platform, grouped by round, all **hidden**
+- [ ] All 25 challenges created on the platform, grouped by round, all **hidden**
 - [ ] Teams registered (so the briefing isn't spent creating accounts)
 - [ ] Hide, pause, and freeze behaviour tested with a test team
 - [ ] Ran `python3 organizer/verify_solutions.py`, all PASS
-- [ ] Checked that students have Linux (Kali, WSL, or a VM) for challenge 17 Floodgate
-- [ ] Per-round ZIPs on a USB stick
+- [ ] Built the deployable images on every challenge node (`ctfd-platform/deploy/build.sh`) and ran `whale_selftest.py`, all 7 live challenges PASS
+- [ ] Checked that students have Linux (Kali, WSL, or a VM) for the reverse-engineering and pwn challenges (17 Floodgate, 25 Floodgate Override)
+- [ ] Per-round ZIPs on a USB stick (file challenges only; the seven live challenges need the platform)
 - [ ] Prizes ready
 
 **On the day**

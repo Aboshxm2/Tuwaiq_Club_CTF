@@ -19,7 +19,7 @@ docker compose exec -e CTFD_ADMIN_PASSWORD="$CTFD_ADMIN_PASSWORD" ctfd \
 
 Open http://localhost:8000. Log in with `admin@taibah.local` / the password you set, unless you changed `CTFD_ADMIN_NAME` or `CTFD_ADMIN_EMAIL`.
 
-This is the laptop setup: rounds and the file challenges work, but the deployable challenges (01 and 20) cannot be launched without a swarm and frp. **For the event, deploy on servers with [PRODUCTION.md](PRODUCTION.md).** It adds HTTPS, per-team challenge containers, and an end-to-end check.
+This is the laptop setup: rounds and the file challenges work, but the deployable challenges (01, 20, 21, 22, 23, 24, 25) cannot be launched without a swarm and frp. **For the event, deploy on servers with [PRODUCTION.md](PRODUCTION.md).** It adds HTTPS, per-team challenge containers, and an end-to-end check.
 
 The admin navbar has a **Rounds** page:
 
@@ -38,7 +38,7 @@ Only one round can be running or frozen at a time. The round ends by itself when
 2. Create a team, or join one with an invite. Maximum 5 members.
 3. When a round is open, open a challenge and press **Launch instance**.
 4. Most challenges: download the zip and solve it. Submit the flag from those files.
-   Challenges 01 and 20: the button starts a live site for the team instead. Open its link and solve it there.
+   Live challenges (01, 20–24): the button starts a live site for the team instead. Open its link and solve it there. Challenge 25 starts a raw TCP service you reach with `nc`.
 
 A banner on the site shows the round name and the time left.
 
@@ -81,7 +81,7 @@ CTFd's normal hint feature is on. A hint you add in the admin challenge editor i
 - In teams mode the whole team shares the captain's container and the same dynamic flag.
 - The launch cooldown is configurable (`whale:frequency_limit`, set to 5 seconds by the importer).
 
-Most challenges are files, so their instance button builds a per-team zip inside CTFd, with no container. Challenges 01 and 20 are live services: whale starts a container per team and routes a link to it through frp. Those images are in [`deploy/`](deploy/README.md). Running them needs Docker Swarm, frp and wildcard DNS; [PRODUCTION.md](PRODUCTION.md) sets all of that up. The CTFd container has the Docker socket mounted, and it runs as root for that reason. Do not expose the admin account.
+Most challenges are files, so their instance button builds a per-team zip inside CTFd, with no container. Seven challenges (01, 20, 21, 22, 23, 24 and 25) are live services: whale starts a container per team and routes it through frp — an HTTP link for all but 25, which is a raw TCP (`direct`) service. Those images are in [`deploy/`](deploy/README.md). Running them needs Docker Swarm, frp and wildcard DNS; [PRODUCTION.md](PRODUCTION.md) sets all of that up. The CTFd container has the Docker socket mounted, and it runs as root for that reason. Do not expose the admin account.
 
 On the Whale settings page, a missing swarm or frp shows as a configuration error. The rounds and the file instances still work.
 

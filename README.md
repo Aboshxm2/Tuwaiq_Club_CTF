@@ -42,9 +42,16 @@ Flags are **case-sensitive**. Submit the whole thing, including `TAIBAH{` and `}
 | 18 | [Deleted but Not Forgotten](challenges/18-deleted-not-forgotten/README.md) | Forensics (Git) | 250 |
 | 19 | [Onion Layers](challenges/19-onion-layers/README.md)             | Encoding             | 250    |
 | 20 | [Token of Trust](challenges/20-token-of-trust/README.md)         | Web / Cryptography   | 350    |
-|    | **Total**                                                        |                      | **3850** |
+| 21 | [Caravan Ledger](challenges/21-caravan-ledger/README.md)         | Web                  | 250    |
+| 22 | [Sealed Scroll](challenges/22-sealed-scroll/README.md)           | Cryptography         | 400    |
+| 23 | [Desert Diagnostics](challenges/23-desert-diagnostics/README.md) | Web                  | 300    |
+| 24 | [Mirage Preview](challenges/24-mirage-preview/README.md)         | Web                  | 350    |
+| 25 | [Floodgate Override](challenges/25-floodgate-override/README.md) | Pwn                  | 400    |
+|    | **Total**                                                        |                      | **5550** |
 
-Challenges 01–10 are **Easy**. Challenges 11–20 are **Medium** and **Hard**, so try them once you're comfortable with the basics. Start at the top if you're new!
+Challenges 01–10 are **Easy**. Challenges 11–25 are **Medium** and **Hard**, so try them once you're comfortable with the basics. Start at the top if you're new!
+
+A few challenges are **live services** instead of downloadable files: challenges 01, 20, 21, 22, 23 and 24 are websites, and challenge 25 is a raw TCP service. For those, press **Launch an instance** on the platform and open the link (or `nc` to the host and port) it gives you. The instance — and the flag inside it — belongs to your team.
 
 ---
 
@@ -54,7 +61,7 @@ Challenges 01–10 are **Easy**. Challenges 11–20 are **Medium** and **Hard**,
 2. **Do not attack** the scoreboard, the competition infrastructure, or other teams.
 3. **Do not share flags** or solutions with other teams during the competition.
 4. Brute-forcing the flag submission form is **not allowed**.
-5. Everything you need is inside the challenge files — no real systems need to be hacked.
+5. Everything you need is inside the challenge files, or inside the live instance you launch — no outside systems need to be hacked. Attack only your own instance.
 6. There are no hints. Everything you need is in the challenge files.
 7. In case of a tie, the team that reached the score **first** wins.
 8. The organizers' decisions are final.

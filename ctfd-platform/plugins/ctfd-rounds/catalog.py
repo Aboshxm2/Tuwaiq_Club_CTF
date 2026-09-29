@@ -21,6 +21,11 @@ CHALLENGES = [
     {"slug": "18-deleted-not-forgotten", "name": "Deleted but Not Forgotten", "category": "Forensics", "points": 250},
     {"slug": "19-onion-layers", "name": "Onion Layers", "category": "Encoding", "points": 250},
     {"slug": "20-token-of-trust", "name": "Token of Trust", "category": "Web", "points": 350},
+    {"slug": "21-caravan-ledger", "name": "Caravan Ledger", "category": "Web", "points": 250},
+    {"slug": "22-sealed-scroll", "name": "Sealed Scroll", "category": "Cryptography", "points": 400},
+    {"slug": "23-desert-diagnostics", "name": "Desert Diagnostics", "category": "Web", "points": 300},
+    {"slug": "24-mirage-preview", "name": "Mirage Preview", "category": "Web", "points": 350},
+    {"slug": "25-floodgate-override", "name": "Floodgate Override", "category": "Pwn", "points": 400},
 ]
 
 # Minutes match organizer/RUN_OF_SHOW.md.
@@ -34,6 +39,7 @@ ROUNDS = [
             "02-strange-letters",
             "04-ones-and-zeros",
             "19-onion-layers",
+            "21-caravan-ledger",
         ],
     },
     {
@@ -45,6 +51,7 @@ ROUNDS = [
             "13-the-merchants-letter",
             "11-sandstorm-xor",
             "12-close-primes",
+            "22-sealed-scroll",
         ],
     },
     {
@@ -56,6 +63,7 @@ ROUNDS = [
             "07-not-a-pdf",
             "18-deleted-not-forgotten",
             "16-pixel-secrets",
+            "23-desert-diagnostics",
         ],
     },
     {
@@ -67,6 +75,7 @@ ROUNDS = [
             "09-password-checker",
             "14-locked-vault",
             "20-token-of-trust",
+            "24-mirage-preview",
         ],
     },
     {
@@ -78,6 +87,7 @@ ROUNDS = [
             "10-who-broke-in",
             "15-wiretap",
             "17-floodgate",
+            "25-floodgate-override",
         ],
     },
 ]
@@ -142,6 +152,83 @@ DEPLOYABLE = {
             "backup of their password list leaked (the portal links to it). "
             "Recover the secret, forge an **administrator** token, and open the "
             "vault.\n\n"
+            "Your instance and its flag are unique to your team."
+        ),
+    },
+    "21-caravan-ledger": {
+        "image": "taibah-ctf/21-caravan-ledger:latest",
+        "redirect_type": "http",
+        "redirect_port": 80,
+        "memory_limit": "128m",
+        "cpu_limit": 0.5,
+        "description": (
+            "The **Oasis Caravan Ledger** lets anyone search the public caravan "
+            "manifest. The same database holds a private table the search page "
+            "was never meant to reach.\n\n"
+            "Launch your instance and make the search return more than the "
+            "caravans it was built to show.\n\n"
+            "Your instance and its flag are unique to your team."
+        ),
+    },
+    "22-sealed-scroll": {
+        "image": "taibah-ctf/22-sealed-scroll:latest",
+        "redirect_type": "http",
+        "redirect_port": 80,
+        "memory_limit": "128m",
+        "cpu_limit": 0.5,
+        "description": (
+            "The archive hands every visitor an encrypted **session scroll** "
+            "(`AES-CBC`). The vault opens only for an *administrator* scroll, and "
+            "yours says *guest*.\n\n"
+            "The scroll carries no signature. Launch your instance, look at how "
+            "the scroll decodes, and change your role **without** the key.\n\n"
+            "Your instance and its flag are unique to your team."
+        ),
+    },
+    "23-desert-diagnostics": {
+        "image": "taibah-ctf/23-desert-diagnostics:latest",
+        "redirect_type": "http",
+        "redirect_port": 80,
+        "memory_limit": "128m",
+        "cpu_limit": 0.5,
+        "description": (
+            "The **Oasis Network Diagnostics** page lets relay operators ping a "
+            "host to check that it is reachable. The check runs on the server.\n\n"
+            "Launch your instance and get it to run a little more than a ping. "
+            "The flag is in a file on the server.\n\n"
+            "Your instance and its flag are unique to your team."
+        ),
+    },
+    "24-mirage-preview": {
+        "image": "taibah-ctf/24-mirage-preview:latest",
+        "redirect_type": "http",
+        "redirect_port": 80,
+        "memory_limit": "128m",
+        "cpu_limit": 0.5,
+        "description": (
+            "**Mirage Preview** fetches any link you paste and shows you what is "
+            "there, so you can preview a page before sharing it. It only allows "
+            "*public* web addresses.\n\n"
+            "Launch your instance. There is an internal control panel the preview "
+            "service can reach but you cannot. Reach it anyway.\n\n"
+            "Your instance and its flag are unique to your team."
+        ),
+    },
+    "25-floodgate-override": {
+        "image": "taibah-ctf/25-floodgate-override:latest",
+        "redirect_type": "direct",
+        "redirect_port": 9999,
+        "memory_limit": "64m",
+        "cpu_limit": 0.5,
+        "description": (
+            "The **Oasis Dam floodgate terminal** demands a 32-character override "
+            "code before it opens the gates. We recovered the control program; it "
+            "hands you a copy when you connect.\n\n"
+            "This is a **raw TCP** service — connect with `nc <host> <port>`. "
+            "Analyse the program, then send input that makes it open the "
+            "floodgates instead of denying you.\n\n"
+            "The program is a Linux x86-64 executable. Decompile it (e.g. Ghidra), "
+            "find the routine that prints the flag, and redirect execution to it.\n\n"
             "Your instance and its flag are unique to your team."
         ),
     },
