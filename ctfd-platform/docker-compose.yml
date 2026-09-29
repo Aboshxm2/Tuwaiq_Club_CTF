@@ -25,6 +25,7 @@ services:
       - ..:/ctf:ro
       - ./plugins/ctfd-rounds:/opt/CTFd/CTFd/plugins/ctfd-rounds:ro
       - ./plugins/ctfd-whale:/opt/CTFd/CTFd/plugins/ctfd-whale:ro
+      - ./plugins/ctfd-registration:/opt/CTFd/CTFd/plugins/ctfd-registration:ro
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - cache

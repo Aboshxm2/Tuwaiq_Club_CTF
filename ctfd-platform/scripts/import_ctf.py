@@ -133,6 +133,7 @@ def main():
 
         catalog = importlib.import_module("CTFd.plugins.ctfd-rounds.catalog")
         models = importlib.import_module("CTFd.plugins.ctfd-rounds.models")
+        registration = importlib.import_module("CTFd.plugins.ctfd-registration")
 
         ensure_setup(db, set_config, get_config, config, Users, Admins, Pages, None)
         page = Pages.query.filter_by(route="index").first()
@@ -142,6 +143,7 @@ def main():
         set_config("team_size", "5")
         set_config("rounds:speed_bonus", get_config("rounds:speed_bonus") or 50)
         set_config("whale:frequency_limit", 5)
+        registration.ensure_fields()
 
         by_slug = {}
         for item in catalog.CHALLENGES:
