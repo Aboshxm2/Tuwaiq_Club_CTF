@@ -16,13 +16,14 @@ sys.path.insert(0, "/opt/CTFd")
 REPO = Path(os.environ.get("CTF_REPO", "/ctf"))
 README_ROOT = REPO / "challenges"
 
+CTF_NAME = "Tuwaiq CTF"
 THEME = "tuwaiq"
 
 # The tw-* classes come from the Tuwaiq theme (themes/tuwaiq/static/css/tuwaiq.css).
 HOME_HTML = """
 <div class="tw-hero">
   <img class="tw-hero-logo" src="/themes/tuwaiq/static/img/tuwaiq-club.png" alt="Tuwaiq Club">
-  <h1>Taibah University CTF</h1>
+  <h1>Tuwaiq CTF</h1>
   <p class="lead">Final day of the cybersecurity workshop. Five rounds, one scoreboard.</p>
   <div class="tw-hero-actions">
     <a class="btn btn-light btn-lg" href="/challenges">Challenges</a>
@@ -105,7 +106,7 @@ def ensure_setup(db, set_config, get_config, config, Users, Admins, Pages, Teams
     if config.is_setup():
         set_config("user_mode", "teams")
         set_config("team_size", 5)
-        set_config("ctf_name", "Taibah University CTF")
+        set_config("ctf_name", CTF_NAME)
         return
 
     password = os.environ.get("CTFD_ADMIN_PASSWORD", "")
@@ -114,7 +115,7 @@ def ensure_setup(db, set_config, get_config, config, Users, Admins, Pages, Teams
     name = os.environ.get("CTFD_ADMIN_NAME", "admin")
     email = os.environ.get("CTFD_ADMIN_EMAIL", "admin@taibah.local")
 
-    set_config("ctf_name", "Taibah University CTF")
+    set_config("ctf_name", CTF_NAME)
     set_config("ctf_description", "Final-day workshop CTF. Five timed rounds, one scoreboard.")
     set_config("user_mode", "teams")
     set_config("team_size", 5)
@@ -131,7 +132,7 @@ def ensure_setup(db, set_config, get_config, config, Users, Admins, Pages, Teams
     set_config("whale:frequency_limit", 5)
 
     admin = Admins(name=name, email=email, password=password, type="admin", hidden=True)
-    page = Pages(title="Taibah University CTF", route="index", content=HOME_HTML, draft=False)
+    page = Pages(title=CTF_NAME, route="index", content=HOME_HTML, draft=False)
     db.session.add(admin)
     db.session.add(page)
     db.session.commit()
@@ -158,6 +159,7 @@ def main():
         ensure_setup(db, set_config, get_config, config, Users, Admins, Pages, None)
         page = Pages.query.filter_by(route="index").first()
         if page is not None:
+            page.title = CTF_NAME
             page.content = HOME_HTML
         set_config("ctf_theme", THEME)
         set_config("user_mode", "teams")
