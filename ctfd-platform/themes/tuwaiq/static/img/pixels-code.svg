@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 324 162" width="324" height="162">
+  <!-- Pixel "</>" mark from the contents slide -->
+  <g fill="#9B75FE" opacity=".45">
+    <rect x="54" y="27" width="26" height="26" rx="3"/>
+    <rect x="27" y="54" width="26" height="26" rx="3"/>
+    <rect x="0" y="81" width="26" height="26" rx="3"/>
+    <rect x="27" y="108" width="26" height="26" rx="3"/>
+    <rect x="54" y="135" width="26" height="26" rx="3"/>
+
+    <rect x="189" y="0" width="26" height="26" rx="3"/>
+    <rect x="162" y="27" width="26" height="53" rx="3"/>
+    <rect x="135" y="81" width="26" height="53" rx="3"/>
+    <rect x="108" y="135" width="26" height="26" rx="3"/>
+
+    <rect x="243" y="27" width="26" height="26" rx="3"/>
+    <rect x="270" y="54" width="26" height="26" rx="3"/>
+    <rect x="297" y="81" width="26" height="26" rx="3"/>
+    <rect x="270" y="108" width="26" height="26" rx="3"/>
+    <rect x="243" y="135" width="26" height="26" rx="3"/>
+  </g>
+</svg>

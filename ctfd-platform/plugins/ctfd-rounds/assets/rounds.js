@@ -20,6 +20,8 @@
           String(Math.floor(remaining / 60)).padStart(2, "0") +
           ":" +
           String(remaining % 60).padStart(2, "0");
+    // Themes style the banner by state; the inline colors are the fallback.
+    banner.dataset.state = !name ? "idle" : state === "frozen" ? "frozen" : "running";
     if (!name) {
       banner.textContent = "Waiting for the next round. Challenges open together.";
       banner.style.background = "#e9ecef";
