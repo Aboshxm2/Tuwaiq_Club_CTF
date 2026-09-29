@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exercise rounds, unique flags, the early-solve bonus, and the hint ban inside CTFd.
+"""Exercise rounds, unique flags, and the early-solve bonus inside CTFd.
 
 This resets round 1 and deletes the two test teams it creates.
 Do not run it after the real event has started.
@@ -11,7 +11,7 @@ import sys
 sys.path.insert(0, "/opt/CTFd")
 
 from CTFd import create_app
-from CTFd.models import Awards, Challenges, Hints, Solves, Teams, Users, db
+from CTFd.models import Awards, Challenges, Solves, Teams, Users, db
 from CTFd.plugins.challenges import CHALLENGE_CLASSES
 from CTFd.utils.security.auth import login_user
 
@@ -64,20 +64,6 @@ def restore(logic, rnd):
     logic.apply_visibility()
 
 
-def check_no_hints(challenge):
-    assert Hints.query.count() == 0, "hints exist"
-    db.session.add(Hints(challenge_id=challenge.id, content="should be refused"))
-    try:
-        db.session.flush()
-    except ValueError as exc:
-        assert "disabled" in str(exc), exc
-    else:
-        raise AssertionError("a hint was inserted")
-    finally:
-        db.session.rollback()
-    assert Hints.query.count() == 0, "hints exist"
-
-
 def make_player(name):
     user = Users(name=name, email=f"{name}@example.com", password="test-password")
     db.session.add(user)
@@ -106,7 +92,6 @@ def main():
         meta = models.ChallengeMeta.query.filter_by(slug="02-strange-letters").one()
         challenge = Challenges.query.filter_by(id=meta.challenge_id).one()
         rnd = logic.round_for_challenge(challenge.id)
-        check_no_hints(challenge)
         cleanup(models)
         restore(logic, rnd)
         try:
@@ -172,7 +157,7 @@ def main():
             db.session.refresh(challenge)
             assert challenge.state == "hidden"
             assert first.get_score(admin=True) == score
-            print(f"PASS score={score} base={challenge.value} flags differ and do not transfer, no hints")
+            print(f"PASS score={score} base={challenge.value} flags differ and do not transfer")
         finally:
             cleanup(models)
             restore(logic, rnd)

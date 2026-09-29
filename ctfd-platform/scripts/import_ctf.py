@@ -123,7 +123,7 @@ def ensure_setup(db, set_config, get_config, config, Users, Admins, Pages, Teams
 def main():
     from CTFd import create_app
     from CTFd.cache import clear_challenges, clear_config
-    from CTFd.models import Admins, Challenges, Hints, Pages, Users, db
+    from CTFd.models import Admins, Challenges, Pages, Users, db
     from CTFd.utils import get_config, set_config
     from CTFd.utils import config
 
@@ -143,7 +143,6 @@ def main():
         set_config("rounds:speed_bonus", get_config("rounds:speed_bonus") or 50)
         set_config("whale:frequency_limit", 5)
 
-        Hints.query.delete()
         by_slug = {}
         for item in catalog.CHALLENGES:
             description = parse_readme(item["slug"], catalog.NOTES)
