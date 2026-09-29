@@ -42,6 +42,15 @@ Only one round can be running or frozen at a time. The round ends by itself when
 
 A banner on the site shows the round name and the time left.
 
+## Registration fields
+
+The importer adds two required fields to the registration form:
+
+- **University Major**: free text.
+- **Level**: a dropdown with Beginner, Intermediate and Advanced. The `ctfd-registration` plugin draws the dropdown and rejects any other value.
+
+Players cannot change these after registering. Admins see and edit them on each user's page (Admin → Users). Rename or delete them under Admin → Config → Custom Fields, but keep the name `Level` or the dropdown stops working.
+
 ## Hints
 
 The importer does not create hints and does not read the `## Hints` sections in the challenge READMEs. Those sections are organizer reference only.

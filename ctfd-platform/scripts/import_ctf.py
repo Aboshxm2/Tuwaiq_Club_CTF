@@ -135,6 +135,7 @@ def main():
         models = importlib.import_module("CTFd.plugins.ctfd-rounds.models")
         whale_models = importlib.import_module("CTFd.plugins.ctfd-whale.models")
         DynamicDockerChallenge = whale_models.DynamicDockerChallenge
+        registration = importlib.import_module("CTFd.plugins.ctfd-registration")
 
         ensure_setup(db, set_config, get_config, config, Users, Admins, Pages, None)
         page = Pages.query.filter_by(route="index").first()
@@ -146,6 +147,7 @@ def main():
         set_config("whale:frequency_limit", 5)
         # Deployable challenges get a per-team flag from whale in the event format.
         set_config("whale:template_chall_flag", "TAIBAH{{ '{' }}{{ uuid.uuid4().hex }}{{ '}' }}")
+        registration.ensure_fields()
 
         def upsert_file_challenge(item, description):
             meta = models.ChallengeMeta.query.filter_by(slug=item["slug"]).first()
