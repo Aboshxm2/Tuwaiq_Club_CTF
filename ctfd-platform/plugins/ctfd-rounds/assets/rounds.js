@@ -65,9 +65,9 @@
   refresh();
   setInterval(refresh, 15000);
 
-  function challengeId() {
+  function challengeData() {
     const store = window.Alpine && Alpine.store && Alpine.store("challenge");
-    return store && store.data && store.data.id;
+    return (store && store.data) || null;
   }
 
   async function launch(id, box) {
@@ -100,9 +100,14 @@
   }
 
   function inject() {
-    const id = challengeId();
+    const data = challengeData();
+    if (!data || !data.id) return;
+    // Container challenges (ctfd-whale) have their own launch panel. Don't add
+    // the file-download box to them.
+    if (data.type === "dynamic_docker") return;
+    const id = data.id;
     const host = document.querySelector(".challenge-desc");
-    if (!id || !host) return;
+    if (!host) return;
     if (host.querySelector("#rounds-instance[data-id='" + id + "']")) return;
     const old = document.getElementById("rounds-instance");
     if (old) old.remove();
