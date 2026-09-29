@@ -4,8 +4,9 @@
 # Each subdirectory that contains a Dockerfile becomes the image
 # "taibah-ctf/<dirname>:latest" — the same name used in catalog.DEPLOYABLE.
 #
-# Run this on the swarm node that will host challenge containers (the worker),
-# so the images are present locally. With a registry, add a push step below.
+# Run this on every swarm node labelled for challenges (whale's "Swarm Nodes"),
+# so the images are present locally. Those nodes never pull from a registry;
+# see PRODUCTION.md, step 5.
 set -eu
 
 cd "$(dirname "$0")"

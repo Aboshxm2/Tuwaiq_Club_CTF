@@ -1,0 +1,112 @@
+# Production layer for the event. Adds what per-team challenge instances need:
+#
+#   caddy  the only public entry point: the CTFd site, plus *.CHALLENGE_DOMAIN
+#          (team instances), forwarded to frps
+#   frps   routes each team's subdomain (or TCP port) to that team's tunnel
+#   frpc   sits on the challenge network; whale rewrites its config through its
+#          admin API every time a team launches or stops an instance
+#
+# and the swarm overlay network whale starts challenge containers on.
+#
+# This machine must be a Docker Swarm manager before `docker compose up`, because
+# the challenges network is an overlay network. Full steps: PRODUCTION.md.
+#
+# Used together with docker-compose.yml. Setting COMPOSE_FILE in .env (see
+# .env.example) makes every plain `docker compose ...` command load both files.
+
+services:
+  ctfd:
+    # Only Caddy reaches CTFd. Port 8000 is not published, so nobody can skip
+    # the proxy and spoof X-Forwarded-For.
+    ports: !reset []
+    environment:
+      REVERSE_PROXY: "true"
+    networks:
+      default:
+      frp-admin:
+    depends_on:
+      - cache
+      - frpc
+
+  caddy:
+    image: caddy:2.10
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      CTF_SITE: ${CTF_SITE:?set CTF_SITE in .env}
+      CHALLENGE_DOMAIN: ${CHALLENGE_DOMAIN:?set CHALLENGE_DOMAIN in .env}
+    volumes:
+      - ./conf/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - ctfd
+      - frps
+
+  frps:
+    image: snowdreamtech/frps:0.51.3
+    restart: unless-stopped
+    environment:
+      CHALLENGE_DOMAIN: ${CHALLENGE_DOMAIN:?set CHALLENGE_DOMAIN in .env}
+    volumes:
+      - ./conf/frp/frps.ini:/etc/frp/frps.ini:ro
+    ports:
+      # "direct" (raw TCP) challenges. Keep in sync with allow_ports in frps.ini
+      # and the Direct Minimum/Maximum Port whale settings. HTTP challenges do
+      # not use these; they go through Caddy on port 80.
+      - "10000-10099:10000-10099"
+    networks:
+      default:
+      frp-tunnel:
+
+  frpc:
+    image: snowdreamtech/frpc:0.51.3
+    restart: unless-stopped
+    # whale rewrites the config file through frpc's admin API. Keep the live
+    # copy in a volume so a frpc restart keeps every running team's route.
+    # conf/frp/frpc.ini is only the first-start seed (see PRODUCTION.md,
+    # "Changing the frp config").
+    entrypoint:
+      - /bin/sh
+      - -c
+      - "[ -s /data/frpc.ini ] || cp /seed/frpc.ini /data/frpc.ini; exec /usr/bin/frpc -c /data/frpc.ini"
+    volumes:
+      - ./conf/frp/frpc.ini:/seed/frpc.ini:ro
+      - frpc-data:/data
+    networks:
+      frp-tunnel:
+        # Make a bridge network the container's primary one. Docker fails to
+        # start a container whose primary network is a compose-made overlay.
+        priority: 10
+      frp-admin:
+        # frpc.ini binds the admin API to this address only, so challenge
+        # containers (on the challenges network) cannot reconfigure frpc.
+        ipv4_address: 172.30.254.10
+      challenges:
+    depends_on:
+      - frps
+
+networks:
+  # frpc <-> frps. Nothing else is on it.
+  frp-tunnel:
+    internal: true
+  # CTFd -> frpc admin API.
+  frp-admin:
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.30.254.0/28
+  # Every team container joins this network. Its full name is
+  # taibah-ctf_challenges; put that in whale's "Auto Connect Network" setting.
+  # internal: team containers get no internet and cannot reach CTFd or Redis.
+  challenges:
+    driver: overlay
+    attachable: true
+    internal: true
+
+volumes:
+  caddy-data:
+  caddy-config:
+  frpc-data:

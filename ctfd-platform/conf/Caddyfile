@@ -1,0 +1,15 @@
+# Public entry point. CTF_SITE and CHALLENGE_DOMAIN come from .env.
+#
+# CTF_SITE as a bare hostname (ctf.example.edu) gets HTTPS from Let's Encrypt
+# automatically. Prefix it with http:// (http://ctf.example.edu) when the server
+# is not reachable from the internet.
+
+{$CTF_SITE} {
+	reverse_proxy ctfd:8000
+}
+
+# Team instances: http://<instance>.CHALLENGE_DOMAIN/. whale always links them
+# over plain http, so this block is http only.
+http://*.{$CHALLENGE_DOMAIN} {
+	reverse_proxy frps:8080
+}

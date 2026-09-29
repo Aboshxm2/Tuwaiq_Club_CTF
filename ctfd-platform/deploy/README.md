@@ -104,27 +104,23 @@ creates the `dynamic_docker` challenge, and whale generates the per-team flag.
 
 ## Deploying the images on the swarm
 
-Whale runs containers with **Docker Swarm** and routes them with **frp** — there
-is no Kubernetes. For this event the layout is two machines:
+Whale runs containers with **Docker Swarm** and routes them with **frp**. There
+is no Kubernetes. Setting up the servers, swarm, frp, DNS, and the whale settings
+is covered step by step in [**PRODUCTION.md**](../PRODUCTION.md).
 
-- **CTFd node (swarm manager):** runs CTFd, Redis/DB, frps, frpc. It is the
-  swarm manager so whale can schedule tasks.
-- **Challenge node (swarm worker):** runs the team containers. Label it so whale
-  targets it:
+What matters for the images:
 
-  ```sh
-  # on the manager, after the worker has joined:
-  docker node update --label-add 'name=linux-1' <worker-node-id>
-  ```
-
-Build images **on the challenge node** (run `build.sh` there) so they are
-present locally, or push them to a registry both nodes can reach and use the
-registry path in `DEPLOYABLE[...]["image"]`.
-
-whale's own settings (Docker API URL, swarm node label, frp) are configured once
-on the *Whale* admin page. See [`plugins/ctfd-whale/docs/install.md`](../plugins/ctfd-whale/docs/install.md)
-for the frps/frpc wiring, and set the flag template to the `TAIBAH{...}` format
-(the importer already does this via `whale:template_chall_flag`).
+- Run `build.sh` on **every node labelled for challenges** (the ones listed in
+  whale's *Swarm Nodes* setting). The production setup makes those nodes use
+  local images only, never Docker Hub, so an image that isn't built on a node
+  can't start there.
+- Rebuild on every such node after changing a challenge. New launches use the
+  new image; running instances keep the old one.
+- After adding a deployable challenge, run
+  `docker compose exec ctfd python /ctf/ctfd-platform/scripts/whale_selftest.py`.
+  It launches, opens, and stops an instance of every deployable challenge. It
+  also solves 01 and 20. For a new challenge it checks that the link loads,
+  unless you add a solver for it to that script.
 
 ---
 
