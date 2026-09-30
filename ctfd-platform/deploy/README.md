@@ -10,7 +10,10 @@ Deployable challenges use the [ctfd-whale](../plugins/ctfd-whale) plugin. Whale
 starts one container per team, injects that team's unique flag, and routes a
 link to it through frp.
 
-Currently deployable: **01 Inspect the Oasis**, **20 Token of Trust**.
+Currently deployable (seven): **01 Inspect the Oasis**, **20 Token of Trust**,
+**21 Caravan Ledger** (SQLi), **22 Sealed Scroll** (AES-CBC bit-flip),
+**23 Desert Diagnostics** (command injection), **24 Mirage Preview** (SSRF), and
+**25 Floodgate Override** (a `direct`/raw-TCP `pwn` challenge — the others are HTTP).
 
 ---
 
@@ -36,8 +39,11 @@ bonus is awarded on solve — the same as file challenges.
 - Read the flag from `FLAG` at start-up. Don't hard-code a flag.
 - Serve on one port, and declare it as `redirect_port`.
 - Assume **one container per team across the whole event at a time**: whale
-  replaces a team's container if they launch another challenge. Keep each round
-  to at most one deployable challenge (rounds 1 and 4 each have exactly one).
+  replaces a team's container if they launch another challenge. A round may hold
+  more than one deployable challenge (rounds 1 and 4 each have two), but a team
+  can only run one at a time, so a player finishes and submits one live challenge
+  before launching the next. That is fine for these challenges — the exploits
+  re-run in seconds against the fresh instance — but design new ones the same way.
 - Don't rely on writing to disk that must survive a restart. Renewal keeps the
   same container, but a fresh launch is a fresh container with a **new** flag.
 - Keep the image small and give it a real memory/CPU ceiling (set in the catalog
@@ -118,9 +124,11 @@ What matters for the images:
   new image; running instances keep the old one.
 - After adding a deployable challenge, run
   `docker compose exec ctfd python /ctf/ctfd-platform/scripts/whale_selftest.py`.
-  It launches, opens, and stops an instance of every deployable challenge. It
-  also solves 01 and 20. For a new challenge it checks that the link loads,
-  unless you add a solver for it to that script.
+  It launches, opens, and stops an instance of every deployable challenge, and
+  it fully solves all seven current ones (the HTTP challenges through Caddy, and
+  the `direct` pwn challenge over a TCP socket to frps). For a new challenge it
+  checks that the endpoint is reachable, unless you add a solver for it to that
+  script (see `SOLVERS` there).
 
 ---
 

