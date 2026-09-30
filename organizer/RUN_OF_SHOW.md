@@ -97,7 +97,7 @@ The site is in `ctfd-platform/`. The **Rounds** item in the admin navbar is the 
 - **End** closes the round. Scores stay. Ending does not wipe points from earlier rounds.
 - Do not use CTFd's global pause or its scoreboard-freeze time for the rounds. Those are separate from this clock.
 
-Players register, create a team of 1 to 5, and press **Launch instance** on each challenge. The download is unique to that team.
+Players register, create a team of 1 to 3, and press **Launch instance** on each challenge. The download is unique to that team.
 
 ---
 
@@ -105,7 +105,7 @@ Players register, create a team of 1 to 5, and press **Launch instance** on each
 
 1. **Welcome (2 min):** Five days of learning, and today you use it all.
 2. **How it works (5 min):**
-   - Teams of 1 to 5. Playing alone means a team with one member.
+   - Teams of 1 to 3. Playing alone means a team with one member.
    - 5 rounds, 4 challenges per round, about 30 minutes each.
    - **When a round ends, its challenges close.** Solve what you can before time runs out.
    - Flag format: `TAIBAH{...}`, case-sensitive.

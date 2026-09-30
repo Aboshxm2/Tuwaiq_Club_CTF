@@ -33,7 +33,7 @@ HOME_HTML = """
 
 <h2 class="tw-section-title">How to play</h2>
 <ol class="tw-steps">
-  <li><span class="tw-num">01</span>Register, then create a team. Play alone by being the only member, or invite up to 4 teammates (5 people total).</li>
+  <li><span class="tw-num">01</span>Register, then create a team. Play alone by being the only member, or invite up to 2 teammates (3 people total).</li>
   <li><span class="tw-num">02</span>Challenges open one round at a time. When a round ends, its challenges close. Points you already earned stay on the scoreboard.</li>
   <li><span class="tw-num">03</span>Open a challenge and click <strong>Launch instance</strong>. Download the files. They were generated for your team.</li>
   <li><span class="tw-num">04</span>Submit the flag you recover. A flag copied from another team will not score.</li>
@@ -105,7 +105,7 @@ def parse_readme(slug, notes):
 def ensure_setup(db, set_config, get_config, config, Users, Admins, Pages, Teams):
     if config.is_setup():
         set_config("user_mode", "teams")
-        set_config("team_size", 5)
+        set_config("team_size", 3)
         set_config("ctf_name", CTF_NAME)
         return
 
@@ -118,7 +118,7 @@ def ensure_setup(db, set_config, get_config, config, Users, Admins, Pages, Teams
     set_config("ctf_name", CTF_NAME)
     set_config("ctf_description", "Final-day workshop CTF. Five timed rounds, one scoreboard.")
     set_config("user_mode", "teams")
-    set_config("team_size", 5)
+    set_config("team_size", 3)
     set_config("challenge_visibility", "private")
     set_config("account_visibility", "public")
     set_config("score_visibility", "public")
@@ -163,7 +163,7 @@ def main():
             page.content = HOME_HTML
         set_config("ctf_theme", THEME)
         set_config("user_mode", "teams")
-        set_config("team_size", "5")
+        set_config("team_size", "3")
         set_config("rounds:speed_bonus", get_config("rounds:speed_bonus") or 50)
         set_config("whale:frequency_limit", 5)
         # Deployable challenges get a per-team flag from whale in the event format.
