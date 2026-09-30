@@ -32,6 +32,8 @@ The admin navbar has a **Rounds** page:
 
 Only one round can be running or frozen at a time. The round ends by itself when the clock hits zero. Change the early-solve percent on the same page. The five rounds and their times come from `organizer/RUN_OF_SHOW.md`.
 
+The same page has a **Hide scoreboard** / **Show scoreboard** button. Hiding sets CTFd's score visibility to *hidden*: players see "Scores are currently hidden" on the scoreboard, and every team's score, place and solve counts disappear from the site and the API. Solves still count and rounds keep running. Admins still see the full scoreboard, so a projector logged in as admin keeps showing live scores. Showing it again brings back the visibility it had before, public unless you changed it under Admin → Config → Visibility.
+
 ## What players do
 
 1. Register.

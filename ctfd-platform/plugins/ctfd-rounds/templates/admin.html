@@ -21,6 +21,28 @@
 
 <div class="container">
   <div class="row mb-4">
+    <div class="col-md-12">
+      <h3>Scoreboard</h3>
+      <p>
+        Hiding the scoreboard hides every team's score, place and solve counts from players.
+        Solves still count, and admins still see everything.
+      </p>
+      <form method="post" action="{{ url_for('ctfd-rounds.admin_scoreboard') }}" class="form-inline">
+        <input type="hidden" name="nonce" value="{{ Session.nonce }}">
+        {% if scores_shown %}
+          <span class="badge badge-success mr-3">Visible to players</span>
+          <input type="hidden" name="show" value="0">
+          <button class="btn btn-warning" type="submit">Hide scoreboard</button>
+        {% else %}
+          <span class="badge badge-secondary mr-3">Hidden from players</span>
+          <input type="hidden" name="show" value="1">
+          <button class="btn btn-success" type="submit">Show scoreboard</button>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+
+  <div class="row mb-4">
     <div class="col-md-6">
       <h3>Early-solve bonus</h3>
       <p>

@@ -39,6 +39,28 @@ def set_speed_bonus_percent(value):
     set_config("rounds:speed_bonus", int(value))
 
 
+SHOWN_SCORE_VISIBILITIES = ("public", "private")
+
+
+def scores_shown():
+    return get_config("score_visibility") in SHOWN_SCORE_VISIBILITIES
+
+
+def set_scores_shown(show):
+    """Hide the scoreboard from players, or bring back the visibility it had before."""
+    current = get_config("score_visibility")
+    if show:
+        if current not in SHOWN_SCORE_VISIBILITIES:
+            previous = get_config("rounds:score_visibility_shown")
+            if previous not in SHOWN_SCORE_VISIBILITIES:
+                previous = "public"
+            set_config("score_visibility", previous)
+    else:
+        if current in SHOWN_SCORE_VISIBILITIES:
+            set_config("rounds:score_visibility_shown", current)
+        set_config("score_visibility", "hidden")
+
+
 def instance_root() -> Path:
     configured = current_app.config.get("ROUNDS_INSTANCE_DIR")
     if configured:

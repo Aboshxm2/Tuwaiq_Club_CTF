@@ -21,6 +21,8 @@ from .logic import (
     launch_instance,
     public_status,
     resume_round,
+    scores_shown,
+    set_scores_shown,
     set_speed_bonus_percent,
     speed_bonus_percent,
     start_round,
@@ -102,6 +104,7 @@ def load(app):
             speed_bonus=speed_bonus_percent(),
             alerts=RoundFlagAlerts.query.order_by(RoundFlagAlerts.id.desc()).limit(30).all(),
             active=active_round(),
+            scores_shown=scores_shown(),
         )
 
     @blueprint.route("/admin/bonus", methods=["POST"])
@@ -111,6 +114,12 @@ def load(app):
             set_speed_bonus_percent(int(request.form.get("speed_bonus", 50)))
         except ValueError:
             pass
+        return redirect(url_for("ctfd-rounds.admin_page"))
+
+    @blueprint.route("/admin/scoreboard", methods=["POST"])
+    @admins_only
+    def admin_scoreboard():
+        set_scores_shown(request.form.get("show") == "1")
         return redirect(url_for("ctfd-rounds.admin_page"))
 
     @blueprint.route("/admin/rounds", methods=["POST"])
