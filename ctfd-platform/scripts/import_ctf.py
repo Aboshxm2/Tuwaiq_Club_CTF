@@ -25,6 +25,10 @@ HOME_HTML = """
   <div class="tw-hero-logos">
     <img class="tw-hero-logo" src="/themes/tuwaiq/static/img/taibah-university.png" alt="Taibah University">
     <span class="tw-hero-divider" aria-hidden="true"></span>
+    <a href="https://x.com/AcademicPlusA" target="_blank" rel="noopener">
+      <img class="tw-hero-logo tw-hero-sponsor" src="/themes/tuwaiq/static/img/aplus.png" alt="Academic Plus (A+)">
+    </a>
+    <span class="tw-hero-divider" aria-hidden="true"></span>
     <img class="tw-hero-logo" src="/themes/tuwaiq/static/img/tuwaiq-club.png" alt="Tuwaiq Club">
   </div>
   <h1>Tuwaiq CTF</h1>
@@ -34,11 +38,6 @@ HOME_HTML = """
     <a class="btn btn-outline-light btn-lg" href="/scoreboard">Scoreboard</a>
   </div>
 </div>
-
-<a class="tw-sponsor" href="https://x.com/AcademicPlusA" target="_blank" rel="noopener">
-  <span class="tw-sponsor-label">Supported by</span>
-  <img src="/themes/tuwaiq/static/img/aplus.png" alt="Academic Plus (A+)">
-</a>
 
 <h2 class="tw-section-title">How to play</h2>
 <ol class="tw-steps">
