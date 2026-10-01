@@ -24,9 +24,11 @@ from .logic import (
     scores_shown,
     set_scores_shown,
     set_speed_bonus_percent,
+    set_team_size,
     speed_bonus_percent,
     start_round,
     submission_block_reason,
+    team_size,
     tick,
 )
 from .models import ChallengeMeta, RoundChallenges, RoundFlagAlerts, Rounds
@@ -105,6 +107,7 @@ def load(app):
             alerts=RoundFlagAlerts.query.order_by(RoundFlagAlerts.id.desc()).limit(30).all(),
             active=active_round(),
             scores_shown=scores_shown(),
+            team_size=team_size(),
         )
 
     @blueprint.route("/admin/bonus", methods=["POST"])
@@ -112,6 +115,15 @@ def load(app):
     def admin_bonus():
         try:
             set_speed_bonus_percent(int(request.form.get("speed_bonus", 50)))
+        except ValueError:
+            pass
+        return redirect(url_for("ctfd-rounds.admin_page"))
+
+    @blueprint.route("/admin/team-size", methods=["POST"])
+    @admins_only
+    def admin_team_size():
+        try:
+            set_team_size(int(request.form.get("team_size", 0)))
         except ValueError:
             pass
         return redirect(url_for("ctfd-rounds.admin_page"))

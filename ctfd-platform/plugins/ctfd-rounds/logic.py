@@ -2,6 +2,7 @@
 
 import datetime
 import hmac
+import re
 import secrets
 import shutil
 from pathlib import Path
@@ -9,8 +10,8 @@ from pathlib import Path
 from flask import current_app, request
 from sqlalchemy.exc import IntegrityError
 
-from CTFd.cache import clear_challenges, clear_standings
-from CTFd.models import Awards, Challenges, Solves, db
+from CTFd.cache import clear_challenges, clear_pages, clear_standings
+from CTFd.models import Awards, Challenges, Pages, Solves, db
 from CTFd.utils import get_config, set_config
 from CTFd.utils.user import get_current_user
 
@@ -37,6 +38,35 @@ def speed_bonus_percent():
 
 def set_speed_bonus_percent(value):
     set_config("rounds:speed_bonus", int(value))
+
+
+DEFAULT_TEAM_SIZE = 3
+
+# The home page shows the limit inside this span (see scripts/import_ctf.py).
+TEAM_SIZE_SPAN = re.compile(r'(<span class="tw-team-size">)\d*(</span>)')
+
+
+def team_size():
+    try:
+        return max(1, int(get_config("team_size") or DEFAULT_TEAM_SIZE))
+    except (TypeError, ValueError):
+        return DEFAULT_TEAM_SIZE
+
+
+def fill_team_size(html, size):
+    return TEAM_SIZE_SPAN.sub(rf"\g<1>{int(size)}\g<2>", html)
+
+
+def set_team_size(value):
+    """Set CTFd's maximum team members and update the number on the home page."""
+    size = max(1, int(value))
+    set_config("team_size", size)
+    page = Pages.query.filter_by(route="index").first()
+    if page is not None and page.content:
+        page.content = fill_team_size(page.content, size)
+        db.session.commit()
+        clear_pages()
+    return size
 
 
 SHOWN_SCORE_VISIBILITIES = ("public", "private")
@@ -326,7 +356,7 @@ def public_status(user=None):
         "success": True,
         "speed_bonus_percent": speed_bonus_percent(),
         "user_mode": get_config("user_mode"),
-        "team_size": int(get_config("team_size") or 0),
+        "team_size": team_size(),
         "has_account": bool(user and user.account_id),
         "round": None,
     }

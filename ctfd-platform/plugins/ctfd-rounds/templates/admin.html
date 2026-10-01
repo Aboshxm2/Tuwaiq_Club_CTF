@@ -54,6 +54,17 @@
         <input class="form-control mr-2" type="number" min="0" max="200" name="speed_bonus" value="{{ speed_bonus }}">
         <button class="btn btn-primary" type="submit">Save percent</button>
       </form>
+
+      <h3 class="mt-4">Team size</h3>
+      <p>
+        The most members a team can have. Players cannot create or join a team past this limit.
+        Teams that are already bigger keep their members. The home page shows the new number.
+      </p>
+      <form method="post" action="{{ url_for('ctfd-rounds.admin_team_size') }}" class="form-inline">
+        <input type="hidden" name="nonce" value="{{ Session.nonce }}">
+        <input class="form-control mr-2" type="number" min="1" name="team_size" value="{{ team_size }}">
+        <button class="btn btn-primary" type="submit">Save team size</button>
+      </form>
     </div>
     <div class="col-md-6">
       <h3>New round</h3>
