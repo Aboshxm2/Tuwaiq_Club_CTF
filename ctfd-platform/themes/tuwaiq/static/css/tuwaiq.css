@@ -1064,8 +1064,16 @@ main form b {
     gap: 0.75rem;
   }
 
+  .tw-footer .tw-footer-logos {
+    gap: 1rem;
+  }
+
   .tw-footer .tw-footer-logos img {
-    height: 32px;
+    height: 26px;
+  }
+
+  .tw-footer .tw-footer-divider {
+    height: 24px;
   }
 }
 
@@ -1087,10 +1095,25 @@ main form b {
   box-shadow: 0 30px 60px -30px rgba(59, 30, 143, 0.9);
 }
 
+.tw-hero-logos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem 2rem;
+  margin-bottom: 1.5rem;
+}
+
 .tw-hero-logo {
   height: 72px;
   width: auto;
-  margin-bottom: 1.5rem;
+  max-width: 100%;
+}
+
+.tw-hero-divider {
+  width: 1px;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.35);
 }
 
 .tw-hero h1 {
@@ -1231,7 +1254,11 @@ main form b {
   }
 
   .tw-hero-logo {
-    height: 56px;
+    height: 48px;
+  }
+
+  .tw-hero-divider {
+    display: none;
   }
 }
 

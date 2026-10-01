@@ -22,7 +22,11 @@ THEME = "tuwaiq"
 # The tw-* classes come from the Tuwaiq theme (themes/tuwaiq/static/css/tuwaiq.css).
 HOME_HTML = """
 <div class="tw-hero">
-  <img class="tw-hero-logo" src="/themes/tuwaiq/static/img/tuwaiq-club.png" alt="Tuwaiq Club">
+  <div class="tw-hero-logos">
+    <img class="tw-hero-logo" src="/themes/tuwaiq/static/img/taibah-university.png" alt="Taibah University">
+    <span class="tw-hero-divider" aria-hidden="true"></span>
+    <img class="tw-hero-logo" src="/themes/tuwaiq/static/img/tuwaiq-club.png" alt="Tuwaiq Club">
+  </div>
   <h1>Tuwaiq CTF</h1>
   <p class="lead">Final day of the cybersecurity workshop. Five rounds, one scoreboard.</p>
   <div class="tw-hero-actions">

@@ -21,7 +21,7 @@
 
   {{ Plugins.styles }}
 
-  <link rel="stylesheet" href="{{ url_for('views.themes_beta', path='css/tuwaiq.css') }}?v=1">
+  <link rel="stylesheet" href="{{ url_for('views.themes_beta', path='css/tuwaiq.css') }}?v=2">
 
   {{ Assets.js("assets/js/color_mode_switcher.js", type=None) }}
 
@@ -61,6 +61,8 @@
 <footer class="footer tw-footer">
   <div class="container">
     <div class="tw-footer-logos">
+      <img src="{{ url_for('views.themes_beta', path='img/taibah-university.png') }}" alt="Taibah University">
+      <span class="tw-footer-divider" aria-hidden="true"></span>
       <img src="{{ url_for('views.themes_beta', path='img/tuwaiq-club.png') }}" alt="Tuwaiq Club">
       <span class="tw-footer-divider" aria-hidden="true"></span>
       <img src="{{ url_for('views.themes_beta', path='img/tuwaiq-academy.png') }}" alt="Tuwaiq Academy">
