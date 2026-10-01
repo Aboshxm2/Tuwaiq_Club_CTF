@@ -35,6 +35,11 @@ HOME_HTML = """
   </div>
 </div>
 
+<a class="tw-sponsor" href="https://x.com/AcademicPlusA" target="_blank" rel="noopener">
+  <span class="tw-sponsor-label">Supported by</span>
+  <img src="/themes/tuwaiq/static/img/aplus.png" alt="Academic Plus (A+)">
+</a>
+
 <h2 class="tw-section-title">How to play</h2>
 <ol class="tw-steps">
   <li><span class="tw-num">01</span>Register, then create a team. Play alone by being the only member, or invite up to 2 teammates (3 people total).</li>

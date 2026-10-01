@@ -1040,6 +1040,18 @@ main form b {
   background: rgba(245, 241, 255, 0.25);
 }
 
+.tw-footer .tw-footer-sponsor {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+}
+
+.tw-footer .tw-footer-sponsor img {
+  height: 64px;
+  width: auto;
+}
+
 .tw-footer a {
   color: rgba(245, 241, 255, 0.7);
   font-size: 0.85rem;
@@ -1051,7 +1063,7 @@ main form b {
 
 @media (max-width: 575.98px) {
   :root {
-    --tw-footer-h: 140px;
+    --tw-footer-h: 190px;
   }
 
   .footer.tw-footer {
@@ -1074,6 +1086,10 @@ main form b {
 
   .tw-footer .tw-footer-divider {
     height: 24px;
+  }
+
+  .tw-footer .tw-footer-sponsor img {
+    height: 48px;
   }
 }
 
@@ -1108,6 +1124,36 @@ main form b {
   height: 72px;
   width: auto;
   max-width: 100%;
+}
+
+.tw-sponsor {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin: -1rem auto 2.5rem;
+  padding: 1.25rem 2rem;
+  max-width: 28rem;
+  border-radius: 1rem;
+  background: var(--tw-purple);
+  color: rgba(245, 241, 255, 0.8);
+  text-decoration: none;
+  box-shadow: 0 20px 40px -28px rgba(59, 30, 143, 0.9);
+}
+
+.tw-sponsor:hover {
+  color: #ffffff;
+}
+
+.tw-sponsor-label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.tw-sponsor img {
+  height: 88px;
+  width: auto;
 }
 
 .tw-hero-divider {
@@ -1248,9 +1294,16 @@ main form b {
 @media (max-width: 575.98px) {
   .tw-hero {
     padding: 2.5rem 1.25rem;
-    background:
-      url("../img/pixels-right.svg") right -80px top 10px / auto 40% no-repeat,
-      var(--tw-purple);
+    background: var(--tw-purple);
+  }
+
+  .tw-sponsor {
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+  }
+
+  .tw-sponsor img {
+    height: 72px;
   }
 
   .tw-hero-logo {

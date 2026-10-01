@@ -21,7 +21,7 @@
 
   {{ Plugins.styles }}
 
-  <link rel="stylesheet" href="{{ url_for('views.themes_beta', path='css/tuwaiq.css') }}?v=2">
+  <link rel="stylesheet" href="{{ url_for('views.themes_beta', path='css/tuwaiq.css') }}?v=3">
 
   {{ Assets.js("assets/js/color_mode_switcher.js", type=None) }}
 
@@ -67,6 +67,10 @@
       <span class="tw-footer-divider" aria-hidden="true"></span>
       <img src="{{ url_for('views.themes_beta', path='img/tuwaiq-academy.png') }}" alt="Tuwaiq Academy">
     </div>
+    <a class="tw-footer-sponsor" href="https://x.com/AcademicPlusA" target="_blank" rel="noopener">
+      <span>{% trans %}Supported by{% endtrans %}</span>
+      <img src="{{ url_for('views.themes_beta', path='img/aplus.png') }}" alt="Academic Plus (A+)">
+    </a>
     <a href="https://ctfd.io">
       {% trans %}Powered by CTFd{% endtrans %}
     </a>
