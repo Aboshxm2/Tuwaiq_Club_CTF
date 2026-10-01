@@ -97,7 +97,7 @@ The site is in `ctfd-platform/`. The **Rounds** item in the admin navbar is the 
 - **End** closes the round. Scores stay. Ending does not wipe points from earlier rounds.
 - Do not use CTFd's global pause or its scoreboard-freeze time for the rounds. Those are separate from this clock.
 
-Players register, create a team of 1 to 3, and press **Launch instance** on each challenge. The download is unique to that team.
+Players register, create a team of 1 to 3 (change the limit on the Rounds page), and press **Launch instance** on each challenge. The download is unique to that team.
 
 ---
 

@@ -2,7 +2,7 @@
 
 CTFd for the workshop, with five timed rounds on one scoreboard.
 
-Players register and create a team of **1 to 3**. A person playing alone is a team of one. Each team launches an instance per challenge. The files, and the flag inside them, belong to that team. Submitting another team's flag does not score.
+Players register and create a team of **1 to 3** (change the limit on the Rounds page). A person playing alone is a team of one. Each team launches an instance per challenge. The files, and the flag inside them, belong to that team. Submitting another team's flag does not score.
 
 Solving earlier in the round earns extra points, up to 50% of the challenge value at the opening second and zero when the clock runs out. The listed challenge points never go down. Points from every round stay on the same scoreboard.
 
@@ -32,12 +32,14 @@ The admin navbar has a **Rounds** page:
 
 Only one round can be running or frozen at a time. The round ends by itself when the clock hits zero. Change the early-solve percent on the same page. The five rounds and their times come from `organizer/RUN_OF_SHOW.md`.
 
+The same page sets the **team size**, the most members a team can have (3 by default). Players cannot create or join a team past it; teams that are already bigger keep their members. Saving it also updates the number on the home page. Set it here rather than under Admin → Config, which would leave the home page showing the old number. Re-running the importer keeps the size you chose; pass `-e TEAM_SIZE=4` to the import command to set it from there instead.
+
 The same page has a **Hide scoreboard** / **Show scoreboard** button. Hiding sets CTFd's score visibility to *hidden*: players see "Scores are currently hidden" on the scoreboard, and every team's score, place and solve counts disappear from the site and the API. Solves still count and rounds keep running. Admins still see the full scoreboard, so a projector logged in as admin keeps showing live scores. Showing it again brings back the visibility it had before, public unless you changed it under Admin → Config → Visibility.
 
 ## What players do
 
 1. Register.
-2. Create a team, or join one with an invite. Maximum 3 members.
+2. Create a team, or join one with an invite. Maximum 3 members by default.
 3. When a round is open, open a challenge and press **Launch instance**.
 4. Most challenges: download the zip and solve it. Submit the flag from those files.
    Live challenges (01, 20–24): the button starts a live site for the team instead. Open its link and solve it there. Challenge 25 starts a raw TCP service you reach with `nc`.
