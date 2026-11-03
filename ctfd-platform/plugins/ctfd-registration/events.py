@@ -151,7 +151,7 @@ def assign_user(user, event):
 
 
 def ensure_default_events():
-    for slug, name in (("boys", "العيال — الأربعاء"), ("girls", "البنات — الخميس")):
+    for slug, name in (("boys", "الطلاب — الأربعاء"), ("girls", "الطالبات — الخميس")):
         if WorkshopEvents.query.filter_by(slug=slug).first():
             continue
         bracket = Brackets.query.filter_by(name=name, type="teams").first()
