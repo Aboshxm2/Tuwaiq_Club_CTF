@@ -1,0 +1,57 @@
+name: Curated challenge tests
+on:
+  pull_request:
+  push:
+    branches: [main, 'codex/**']
+jobs:
+  containers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and smoke-test all seven images
+        shell: bash
+        run: |
+          set -eu
+          sh ctfd-platform/deploy/build-curated.sh
+          for mode in last-edit forgotten-route frontend-pass trial-login refund-desk caravan-ledger template-studio; do
+            id=$(docker run -d -e 'FLAG=TAIBAH{ci_only}' -p 127.0.0.1:8087:8080 "taibah-ctf/curated-$mode:v1")
+            python - <<'PY'
+          import time, urllib.request
+          for attempt in range(30):
+              try:
+                  with urllib.request.urlopen('http://127.0.0.1:8087/', timeout=2) as response:
+                      body = response.read()
+                  assert b'lang="en"' in body
+                  assert b'TAIBAH{ci_only}' not in body
+                  break
+              except OSError:
+                  time.sleep(0.5)
+          else:
+              raise RuntimeError('Container did not become ready')
+          PY
+            docker rm -f "$id"
+          done
+  puzzles:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install flask==3.0.3 Pillow==12.2.0
+      - run: python -m unittest discover -s organizer/tests -v
+      - run: python organizer/prepare_curated.py
+  staging:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Exercise staging against CTFd 3.8.7 with SQLite
+        run: |
+          docker run --rm --entrypoint sh -e CTF_REPO=/ctf -v "$PWD:/ctf" ctfd/ctfd:3.8.7 -c '
+            set -eu
+            pip install Pillow==12.2.0
+            cp -r /ctf/ctfd-platform/plugins/ctfd-rounds /opt/CTFd/CTFd/plugins/
+            cp -r /ctf/ctfd-platform/plugins/ctfd-whale /opt/CTFd/CTFd/plugins/
+            cd /ctf
+            PYTHONPATH=/opt/CTFd python -m unittest discover -s ctfd-platform/tests -p test_curated_import.py -v
+          '

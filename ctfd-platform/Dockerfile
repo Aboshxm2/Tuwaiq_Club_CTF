@@ -6,6 +6,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 COPY plugins/ctfd-whale/requirements.txt /tmp/whale-requirements.txt
 RUN pip install --no-cache-dir -r /tmp/whale-requirements.txt
+RUN pip install --no-cache-dir Pillow==12.2.0
 COPY plugins/ctfd-rounds /opt/CTFd/CTFd/plugins/ctfd-rounds
 COPY plugins/ctfd-whale /opt/CTFd/CTFd/plugins/ctfd-whale
 COPY plugins/ctfd-registration /opt/CTFd/CTFd/plugins/ctfd-registration

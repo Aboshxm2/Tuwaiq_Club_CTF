@@ -10,6 +10,8 @@ import threading
 import zipfile
 from pathlib import Path
 
+from . import curated_files
+
 _LOCK = threading.Lock()
 _BUILDER = None
 
@@ -75,6 +77,10 @@ def stamp(flag: str, token: str, replace: bool = False) -> str:
 
 
 def canonical_flag(mod, slug: str) -> str:
+    if slug in curated_files.SLUGS:
+        if slug == "31-who-asked":
+            return "TAIBAH{10.44.0.31}"
+        return "TAIBAH{" + slug.split("-", 1)[1].replace("-", "_") + "}"
     if slug == "01-inspect-the-oasis":
         joined = "".join(mod.FLAGS["web"])
         return joined if joined.endswith("}") else joined + "}"
@@ -99,7 +105,9 @@ def _write(dest: Path, name: str, text: str):
 
 
 def _build_into(mod, slug: str, flag: str, token: str, dest: Path):
-    if slug == "01-inspect-the-oasis":
+    if slug in curated_files.SLUGS:
+        curated_files.generate(slug, flag, dest, mod)
+    elif slug == "01-inspect-the-oasis":
         mod.FLAGS["web"] = split3(flag)
         mod.build_web()
     elif slug == "02-strange-letters":
@@ -206,6 +214,9 @@ def _zip_dir(src: Path, dest_zip: Path):
 
 def generate(slug: str, token: str, dest: Path) -> str:
     """Write the team's files into dest and return the flag that scores."""
+    # New catalog versions have independent metadata/bundle directories so a
+    # staged pack does not mutate or invalidate any existing player instances.
+    slug = slug.removeprefix("curated-")
     dest.mkdir(parents=True, exist_ok=True)
     mod = load_builder()
     flag = stamp(canonical_flag(mod, slug), token, replace=(slug == "17-floodgate"))

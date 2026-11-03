@@ -110,6 +110,9 @@
     const id = data.id;
     const host = document.querySelector(".challenge-desc");
     if (!host) return;
+    // Shared-file/OSINT puzzles have an attachment and a public answer, not a
+    // per-team generator. Do not advertise a nonexistent launch endpoint.
+    if (host.querySelector(".shared-handout")) return;
     if (host.querySelector("#rounds-instance[data-id='" + id + "']")) return;
     const old = document.getElementById("rounds-instance");
     if (old) old.remove();

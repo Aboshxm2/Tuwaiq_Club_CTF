@@ -13,6 +13,7 @@ cd "$(dirname "$0")"
 
 for dir in */; do
   slug=${dir%/}
+  [ "$slug" = "curated-web" ] && continue
   [ -f "$slug/Dockerfile" ] || continue
   image="taibah-ctf/${slug}:latest"
   echo ">> building ${image}"

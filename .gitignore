@@ -7,3 +7,6 @@ venv/
 .DS_Store
 *.swp
 .env
+organizer/.curated-private/
+curated-output/
+.ctfd_secret_key
