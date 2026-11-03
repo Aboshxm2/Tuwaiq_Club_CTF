@@ -28,6 +28,9 @@
 
     <div class="collapse navbar-collapse" id="base-navbars">
       <ul class="navbar-nav me-auto">
+        {% if workshop_event_mode %}
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('workshop.choose') }}">{{ workshop_event.name if workshop_event else 'الفعاليات' }}</a></li>
+        {% endif %}
         {% for page in Plugins.user_menu_pages %}
           <li class="nav-item">
             <a class="nav-link" href="{{ page.route }}" {% if page.link_target %}target="{{ page.link_target }}"{% endif %}>

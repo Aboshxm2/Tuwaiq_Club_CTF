@@ -48,10 +48,17 @@
 
   {{ Configs.theme_header }}
 </head>
-<body>
+<body data-workshop-events="{{ 'true' if workshop_event_mode else 'false' }}">
 {% include "components/navbar.html" %}
 
 <main role="main">
+  {% if workshop_event_mode and request.endpoint == 'auth.register' and workshop_registration %}
+    <div class="container pt-3" dir="rtl">
+      <div class="alert alert-info">التسجيل في: <strong>{{ workshop_registration.name }}</strong>.
+        اختيار الفعالية ثابت بعد إنشاء الحساب. <a href="{{ url_for('workshop.choose') }}">اختيار فعالية أخرى قبل التسجيل</a>
+      </div>
+    </div>
+  {% endif %}
   {% block content %}
   {% endblock %}
 </main>

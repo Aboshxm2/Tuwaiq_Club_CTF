@@ -1,5 +1,5 @@
 (function () {
-  if (!window.CTFd) return;
+  if (!window.CTFd || !window.init || !window.init.userId) return;
 
   const banner = document.createElement("div");
   banner.id = "rounds-banner";
@@ -11,6 +11,7 @@
   let remaining = null;
   let state = null;
   let name = "";
+  let eventMode = document.body.dataset.workshopEvents === "true";
 
   function paint() {
     const clock =
@@ -23,7 +24,13 @@
     // Themes style the banner by state; the inline colors are the fallback.
     banner.dataset.state = !name ? "idle" : state === "frozen" ? "frozen" : "running";
     if (!name) {
-      banner.textContent = "Waiting for the next round. Challenges open together.";
+      banner.textContent = eventMode ? "بانتظار بدء فعاليتك ونشر التحديات." : "Waiting for the next round. Challenges open together.";
+      banner.style.background = "#e9ecef";
+      banner.style.color = "#212529";
+      return;
+    }
+    if (eventMode && (state === "pending" || state === "ended")) {
+      banner.textContent = name + (state === "ended" ? " · انتهت الفعالية. استقبال الحلول مغلق." : " · بانتظار البداية.");
       banner.style.background = "#e9ecef";
       banner.style.color = "#212529";
       return;
@@ -34,7 +41,7 @@
       banner.style.color = "#212529";
       return;
     }
-    banner.textContent = name + clock + " · early solves earn extra points";
+    banner.textContent = name + clock + (eventMode ? "" : " · early solves earn extra points");
     banner.style.background = "#0d6efd";
     banner.style.color = "#fff";
   }
@@ -43,6 +50,7 @@
     try {
       const response = await CTFd.fetch("/api/v1/plugins/ctfd-rounds/status");
       const data = await response.json();
+      eventMode = eventMode || !!data.event_mode;
       if (!data.success || !data.round) {
         name = "";
         remaining = null;

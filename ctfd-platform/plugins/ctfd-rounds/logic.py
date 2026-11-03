@@ -1,6 +1,7 @@
 """Round clock, visibility, per-team flags, and early-solve bonus."""
 
 import datetime
+import importlib
 import hmac
 import secrets
 import shutil
@@ -26,6 +27,12 @@ from .models import (
 from .personalize import generate
 
 TOKEN_ALPHABET = "abcdefghjkmnpqrstuvwxyz23456789"
+
+
+def workshop_events():
+    # The registration plugin owns event membership; lazy import avoids a
+    # plugin-loading cycle. Existing installations stay in legacy round mode.
+    return importlib.import_module("CTFd.plugins.ctfd-registration.events")
 
 
 def speed_bonus_percent():
@@ -89,6 +96,9 @@ def active_round():
 
 def apply_visibility():
     """Open only the active round. Every other challenge stays hidden."""
+    if workshop_events().enabled():
+        workshop_events().apply_visibility()
+        return None
     current = active_round()
     open_ids = set(current.challenge_ids) if current else set()
     changed = False
@@ -105,6 +115,9 @@ def apply_visibility():
 
 def tick():
     """End any running round whose clock has run out, then enforce visibility."""
+    if workshop_events().enabled():
+        workshop_events().expire_events()
+        return
     ended = False
     for rnd in Rounds.query.filter_by(state="running").all():
         if rnd.elapsed() >= rnd.duration:
@@ -168,6 +181,8 @@ def end_round(rnd: Rounds):
 
 
 def submission_block_reason(challenge):
+    if workshop_events().enabled():
+        return workshop_events().block_reason(challenge.id)
     rnd = round_for_challenge(challenge.id)
     if rnd is None:
         return None
@@ -200,7 +215,10 @@ def launch_instance(challenge, user=None):
     meta = ChallengeMeta.query.filter_by(challenge_id=challenge.id).first()
     if meta is None:
         return False, "This challenge has no instance generator.", None
-    reason = submission_block_reason(challenge)
+    reason = (workshop_events().block_reason(challenge.id, user=user)
+              if workshop_events().enabled() else submission_block_reason(challenge))
+    if workshop_events().enabled() and reason:
+        return False, reason, None
     existing = PersonalFlags.query.filter_by(
         account_id=account_id, challenge_id=challenge.id
     ).first()
@@ -284,6 +302,8 @@ def grade_personal(challenge, source_request=None):
 
 def award_for_solve(user, team, challenge):
     """Add extra points that shrink to zero as the round clock runs out."""
+    if workshop_events().enabled():
+        return  # Event mode uses fixed points, independent of the other day.
     percent = speed_bonus_percent()
     if percent <= 0 or not challenge.value:
         return
@@ -319,6 +339,8 @@ def award_for_solve(user, team, challenge):
 
 
 def public_status(user=None):
+    if workshop_events().enabled():
+        return workshop_events().status(user)
     tick()
     rnd = active_round()
     user = user if user is not None else get_current_user()

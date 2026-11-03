@@ -41,9 +41,10 @@
     if (description && description.matches("small.form-text")) description.remove();
     const note = document.createElement("p");
     note.className = "form-text mb-3";
-    note.textContent =
-      "Your team's leaderboard (Beginner, Intermediate or Advanced) is the level " +
-      "of its most experienced member. It updates when members join or leave.";
+    note.textContent = document.body.dataset.workshopEvents === "true"
+      ? "فريقك تابع لفعاليتك تلقائياً. يمكن الانضمام فقط إلى فرق الفعالية نفسها."
+      : "Your team's leaderboard (Beginner, Intermediate or Advanced) is the level " +
+        "of its most experienced member. It updates when members join or leave.";
     select.replaceWith(note);
   }
 

@@ -17,6 +17,7 @@ from .brackets import (
     team_level,
     user_level,
 )
+from . import events
 
 MAJOR_FIELD = "University Major"
 
@@ -78,6 +79,8 @@ def load(app):
         # the creator's level instead, whatever the form sent.
         if request.method != "POST" or request.endpoint != "teams.new":
             return
+        if events.enabled():
+            return  # The event guard sets the bracket from immutable membership.
         ids = bracket_ids()
         user = get_current_user()
         if len(ids) != len(LEVELS) or user is None:
@@ -92,9 +95,13 @@ def load(app):
         # paths. Re-check every team so its bracket follows its members.
         if request.method == "GET" or not request.path.startswith(TEAM_CHANGE_PREFIXES):
             return response
+        if events.enabled():
+            return response
         try:
             if sync_team_brackets():
                 clear_standings()
         except Exception:
             db.session.rollback()
         return response
+
+    events.install(app)

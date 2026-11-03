@@ -4,6 +4,11 @@ CTFd for the workshop, with five timed rounds on one scoreboard.
 
 Players register and create a team of **1 to 3**. A person playing alone is a team of one. Each team launches an instance per challenge. The files, and the flag inside them, belong to that team. Submitting another team's flag does not score.
 
+For separate Wednesday/boys and Thursday/girls registration, teams, leaderboards,
+and cumulative challenge releases, see [EVENTS.md](EVENTS.md). This optional mode
+is enabled explicitly under **Admin → Events** after deployment. Until then,
+the existing level brackets and round controls continue to work.
+
 Solving earlier in the round earns extra points, up to 50% of the challenge value at the opening second and zero when the clock runs out. The listed challenge points never go down. Points from every round stay on the same scoreboard.
 
 ## Start it

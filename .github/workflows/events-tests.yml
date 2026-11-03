@@ -1,0 +1,32 @@
+name: Workshop event isolation
+
+on:
+  pull_request:
+    paths:
+      - "ctfd-platform/**"
+      - ".github/workflows/events-tests.yml"
+  push:
+    branches: [main, "codex/**"]
+    paths:
+      - "ctfd-platform/**"
+      - ".github/workflows/events-tests.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  events:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test against CTFd 3.8.7 without production data or Docker services
+        run: |
+          docker run --rm --user root --entrypoint python \
+            -e PYTHONPATH=/opt/CTFd \
+            -v "$PWD:/ctf:ro" \
+            -v "$PWD/ctfd-platform/plugins/ctfd-registration:/opt/CTFd/CTFd/plugins/ctfd-registration:ro" \
+            -v "$PWD/ctfd-platform/plugins/ctfd-rounds:/opt/CTFd/CTFd/plugins/ctfd-rounds:ro" \
+            -v "$PWD/ctfd-platform/themes/tuwaiq:/opt/CTFd/CTFd/themes/tuwaiq:ro" \
+            ctfd/ctfd:3.8.7 \
+            -m unittest discover -s /ctf/ctfd-platform/tests -v

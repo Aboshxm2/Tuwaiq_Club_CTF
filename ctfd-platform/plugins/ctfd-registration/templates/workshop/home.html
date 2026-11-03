@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="jumbotron"><div class="container" dir="rtl">
+  <h1>{{ event.name }}</h1>
+  <p>{{ event.duration // 60 }} دقيقة. تظهر دفعات التحديات عندما ينشرها المنظم.</p>
+  <a class="btn btn-primary" href="{{ url_for('challenges.listing') }}">التحديات</a>
+  <a class="btn btn-outline-primary" href="{{ url_for('teams.private') }}">فريقي</a>
+  <a class="btn btn-outline-primary" href="{{ url_for('scoreboard.listing') }}">لوحة النتائج</a>
+</div></div>
+<div class="container" dir="rtl">
+  <ol>
+    <li>أنشئ فريقاً أو انضم إلى فريق من فعاليتك. يمكنك اللعب بفريق من شخص واحد.</li>
+    <li>افتح التحدي وشغّل بيئتك أو نزّل ملفاته. الفلاق المولّد لفريق آخر لا يسجل لفريقك.</li>
+    <li>أرسل الفلاق كاملاً بصيغة <code dir="ltr">TAIBAH{...}</code>.</li>
+    <li>عند إيقاف الفعالية أو انتهائها يتوقف استقبال الحلول.</li>
+  </ol>
+  <p>لا تهاجم المنصة أو الفرق الأخرى، ولا تشارك الحلول أثناء المنافسة. البحث والأدوات مسموحة؛ مساعدات الذكاء الاصطناعي للاعبين غير مسموحة.</p>
+</div>
+{% endblock %}

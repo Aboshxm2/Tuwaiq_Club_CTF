@@ -55,6 +55,11 @@ def user_level(user_id):
 
 def sync_team_brackets():
     """Put every team in its level's bracket. Returns how many teams moved."""
+    from . import events
+
+    if events.enabled():
+        events.sync_teams()
+        return 0
     ids = bracket_ids()
     if len(ids) != len(LEVELS):
         return 0

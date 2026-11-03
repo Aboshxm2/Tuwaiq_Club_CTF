@@ -28,6 +28,7 @@ from .logic import (
     start_round,
     submission_block_reason,
     tick,
+    workshop_events,
 )
 from .models import ChallengeMeta, RoundChallenges, RoundFlagAlerts, Rounds
 
@@ -94,6 +95,8 @@ def load(app):
     @blueprint.route("/admin", methods=["GET"])
     @admins_only
     def admin_page():
+        if workshop_events().enabled():
+            return redirect(url_for("workshop-admin.index"))
         tick()
         challenges = Challenges.query.order_by(Challenges.position, Challenges.id).all()
         return render_template(
